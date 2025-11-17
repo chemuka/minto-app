@@ -1,7 +1,7 @@
-# Minto Club Membership App Secured with JWT
+# Minto Club Web App Secured with JWT
 
-## Backend
-Java Spring Boot REST API application connected to a PostgreSQL database.
+## Membership - (Backend)
+Java Spring Boot, Spring Security REST API application connected to a PostgreSQL database.
 
-## Frontend
-React application.
+## Minto-UI - (Frontend)
+React website and web application for membership application and management.
