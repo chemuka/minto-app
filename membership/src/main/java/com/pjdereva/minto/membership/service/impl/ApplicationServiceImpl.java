@@ -2,8 +2,7 @@ package com.pjdereva.minto.membership.service.impl;
 
 import com.pjdereva.minto.membership.model.*;
 import com.pjdereva.minto.membership.model.transaction.*;
-import com.pjdereva.minto.membership.payload.request.application.ApplicationRequest;
-import com.pjdereva.minto.membership.payload.request.application.PersonRequest;
+import com.pjdereva.minto.membership.payload.request.application.*;
 import com.pjdereva.minto.membership.repository.ApplicationRepository;
 import com.pjdereva.minto.membership.repository.PersonRepository;
 import com.pjdereva.minto.membership.repository.UserRepository;
@@ -173,10 +172,10 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     /**
-     * Add family members to application
+     * Add family members, relatives, referees and beneficiaries to application
      */
     @Transactional
-    public void addFamilyMembers(Long applicationId, Long userId, ApplicationRequest request) {
+    public void addFamilyAndOthers(Long applicationId, Long userId, ApplicationRequest request) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
 
@@ -224,8 +223,59 @@ public class ApplicationServiceImpl implements ApplicationService {
             });
         }
 
+        // Add siblings
+        if (request.getSiblings() != null) {
+            request.getSiblings().forEach(siblingRequest -> {
+                Person siblingPerson = createPersonFromRequest(siblingRequest);
+                Sibling sibling = Sibling.builder()
+                        .person(siblingPerson)
+                        .siblingType(siblingRequest.getSiblingType())
+                        .build();
+                application.addSibling(sibling);
+            });
+        }
+
+        // Add referees
+        if (request.getReferees() != null) {
+            request.getReferees().forEach(refereeRequest -> {
+                Person refereePerson = createPersonFromRequest(refereeRequest);
+                Referee referee = Referee.builder()
+                        .person(refereePerson)
+                        .membershipNumber(refereeRequest.getMembershipNumber())
+                        .build();
+                application.addReferee(referee);
+            });
+        }
+
+        // Add relatives
+        if (request.getRelatives() != null) {
+            request.getRelatives().forEach(relativeRequest -> {
+                Person relativePerson = createPersonFromRequest(relativeRequest);
+                Relative relative = Relative.builder()
+                        .person(relativePerson)
+                        .membershipNumber(relativeRequest.getMembershipNumber())
+                        .relationship(relativeRequest.getRelationship())
+                        .build();
+                application.addRelative(relative);
+            });
+        }
+
+        // Add beneficiaries
+        if (request.getBeneficiaries() != null) {
+            request.getBeneficiaries().forEach(beneficiaryRequest -> {
+                Person beneficiaryPerson = createPersonFromRequest(beneficiaryRequest);
+                Beneficiary beneficiary = Beneficiary.builder()
+                        .person(beneficiaryPerson)
+                        .relationship(beneficiaryRequest.getRelationship())
+                        .percentage(beneficiaryRequest.getPercentage())
+                        .build();
+                application.addBeneficiary(beneficiary);
+            });
+        }
+
         applicationRepository.save(application);
-        log.info("Family members added to application {}", application.getApplicationNumber());
+        log.info("Family members, referees and beneficiaries added to application {}",
+                application.getApplicationNumber());
     }
 
     // Helper methods
@@ -317,30 +367,38 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         if(request.getContact() != null) {
             if (request.getContact().getAddresses() != null) {
-                Address address = Address.builder()
-                        .type(AddressType.HOME)
-                        .address(request.getContact().getEmail())
-                        .primary(true)
-                        .build();
-                contact.addAddress(email);
+                request.getContact().getAddresses().forEach(addressRequest -> {
+                    Address address = Address.builder()
+                            .type(addressRequest.getType())
+                            .street(addressRequest.getStreet())
+                            .city(addressRequest.getCity())
+                            .state(addressRequest.getState())
+                            .zipcode(addressRequest.getZipcode())
+                            .country(addressRequest.getCountry())
+                            .build();
+                    contact.addAddress(address);
+                });
             }
 
-            if (request.getEmail() != null) {
-                Email email = Email.builder()
-                        .type(Email.EmailType.PERSONAL)
-                        .address(request.getEmail())
-                        .primary(true)
-                        .build();
-                contact.addEmail(email);
+            if (request.getContact().getEmails() != null) {
+                request.getContact().getEmails().forEach(emailRequest -> {
+                    Email email = Email.builder()
+                            .type(emailRequest.getType())
+                            .address(emailRequest.getAddress())
+                            .build();
+                    contact.addEmail(email);
+                });
             }
 
-            if (request.getPhone() != null) {
-                Phone phone = Phone.builder()
-                        .type(Phone.PhoneType.MOBILE)
-                        .number(request.getPhone())
-                        .primary(true)
-                        .build();
-                contact.addPhone(phone);
+            if (request.getContact().getPhones() != null) {
+                request.getContact().getPhones().forEach(phoneRequest -> {
+                    Phone phone = Phone.builder()
+                            .type(phoneRequest.getType())
+                            .number(phoneRequest.getNumber())
+                            .countryCode(phoneRequest.getCountryCode())
+                            .build();
+                    contact.addPhone(phone);
+                });
             }
         }
 
@@ -349,8 +407,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .lastName(request.getLastName())
                 .middleName(request.getMiddleName())
                 .dob(request.getDob())
-                .contact(contact)
                 .lifeStatus(LifeStatus.LIVING)
+                .contact(contact)
                 .build();
 
         person.setContact(contact);
