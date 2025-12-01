@@ -1,5 +1,6 @@
 package com.pjdereva.minto.membership.model.transaction;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.pjdereva.minto.membership.model.Person;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,12 +18,13 @@ public class Child {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "application_id", nullable = false)
     @ToString.Exclude
+    @JsonBackReference
     private Application application;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinColumn(name = "person_id", unique = true)
     @ToString.Exclude
     private Person person;

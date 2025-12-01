@@ -1,5 +1,7 @@
 package com.pjdereva.minto.membership.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,19 +22,23 @@ public class Contact {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(mappedBy = "contact", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "contact", fetch = FetchType.EAGER)
+    @JsonBackReference
     private Person person;
 
     @OneToMany(mappedBy = "contact", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonManagedReference
     private Set<Address> addresses = new HashSet<>();
 
     @OneToMany(mappedBy = "contact", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonManagedReference
     private Set<Phone> phones = new HashSet<>();
 
     @OneToMany(mappedBy = "contact", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonManagedReference
     private Set<Email> emails = new HashSet<>();
 
     @Column(name = "created_at", nullable = false, updatable = false)

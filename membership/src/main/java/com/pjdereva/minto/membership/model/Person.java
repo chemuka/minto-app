@@ -1,5 +1,7 @@
 package com.pjdereva.minto.membership.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pjdereva.minto.membership.model.transaction.Application;
 import com.pjdereva.minto.membership.model.transaction.LifeStatus;
 import jakarta.persistence.*;
@@ -50,14 +52,16 @@ public class Person {
     private LocalDateTime updatedAt;
 
     // Owning side of the relationship
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "contact_id", unique = true)
     @ToString.Exclude
+    @JsonManagedReference
     private Contact contact;
 
     // Bidirectional reference to application (optional, depending on your needs)
-    @OneToOne(mappedBy = "person", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "person", fetch = FetchType.EAGER)
     @ToString.Exclude
+    @JsonBackReference
     private Application application;
 
     // Helper methods to maintain bidirectional relationship with Contact

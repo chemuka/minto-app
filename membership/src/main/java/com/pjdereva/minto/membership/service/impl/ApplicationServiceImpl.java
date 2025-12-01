@@ -1,8 +1,9 @@
 package com.pjdereva.minto.membership.service.impl;
 
+import com.pjdereva.minto.membership.dto.application.ApplicationDTO;
+import com.pjdereva.minto.membership.dto.application.PersonDTO;
 import com.pjdereva.minto.membership.model.*;
 import com.pjdereva.minto.membership.model.transaction.*;
-import com.pjdereva.minto.membership.payload.request.application.*;
 import com.pjdereva.minto.membership.repository.ApplicationRepository;
 import com.pjdereva.minto.membership.repository.PersonRepository;
 import com.pjdereva.minto.membership.repository.UserRepository;
@@ -55,6 +56,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .firstName(user.getFirstName())
                     .lastName(user.getLastName())
                     .lifeStatus(LifeStatus.LIVING)
+                    .updatedAt(LocalDateTime.now())
                     .build();
 
             // Create Contact with email
@@ -91,10 +93,10 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     /**
-     * Add family members, relatives, referees and beneficiaries to application
+     * Add people (family members, relatives, referees and beneficiaries) and other info to the application
      */
     @Transactional
-    public void addPeopleAndOtherInfo(ApplicationRequest request) {
+    public void addPeopleAndOtherInfo(ApplicationDTO request) {
         log.info("Find application with id: {}", request.getApplicationId());
         Application application = applicationRepository.findById(request.getApplicationId())
                 .orElseThrow(() -> new RuntimeException("Application not found"));
@@ -102,21 +104,27 @@ public class ApplicationServiceImpl implements ApplicationService {
         log.info("Verify ownership and editable");
         // Verify ownership and editable
         if (!application.getUser().getId().equals(request.getUserId())) {
-            throw new SecurityException("User does not own this application");
+            throw new SecurityException("User does not own this application.");
         }
         if (!application.isEditable()) {
-            throw new IllegalStateException("Application cannot be edited");
+            throw new IllegalStateException("Application cannot be edited.");
+        }
+        if (application.getPerson() == null) {
+            throw new IllegalStateException("Application has no person record.");
         }
 
+        application.setMaritalStatus(request.getMaritalStatus());
+
+        // Add Person details for Application
         if (request.getPerson() != null) {
+            Person appPerson = application.getPerson();
             Person personObj = createPersonFromRequest(request.getPerson());
-            Person person = application.getPerson();
-            person.setFirstName(personObj.getFirstName());
-            person.setLastName(personObj.getLastName());
-            person.setMiddleName(personObj.getMiddleName());
-            person.setDob(personObj.getDob());
-            person.setLifeStatus(personObj.getLifeStatus());
-            person.setContact(personObj.getContact());
+            appPerson.setFirstName(personObj.getFirstName());
+            appPerson.setLastName(personObj.getLastName());
+            appPerson.setMiddleName(personObj.getMiddleName());
+            appPerson.setDob(personObj.getDob());
+            appPerson.setLifeStatus(personObj.getLifeStatus());
+            appPerson.setContact(personObj.getContact());
         }
 
         log.info("Add parents");
@@ -133,7 +141,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
 
         // Add spouses
-        application.setMaritalStatus(request.getMaritalStatus());
         if (request.getSpouses() != null) {
             request.getSpouses().forEach(spouseReq -> {
                 Person spousePerson = createPersonFromRequest(spouseReq);
@@ -386,13 +393,18 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public Optional<Application> getApplicationById(Long id) {
+    public List<Application> findAllByApplicationStatus(ApplicationStatus applicationStatus) {
+        return applicationRepository.findAllByApplicationStatus(applicationStatus);
+    }
+
+    @Override
+    public Optional<Application> findById(Long id) {
         return applicationRepository.findById(id);
     }
 
     @Override
-    public List<Application> findAllByApplicationStatus(ApplicationStatus applicationStatus) {
-        return applicationRepository.findAllByApplicationStatus(applicationStatus);
+    public Optional<Application> findByIdWithPersonAndContact(Long id) {
+        return applicationRepository.findByIdWithPersonAndContact(id);
     }
 
     @Override
@@ -416,7 +428,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return true;
     }
 
-    private Person createPersonFromRequest(PersonRequest request) {
+    private Person createPersonFromRequest(PersonDTO request) {
         log.info("Create person from request: {}", request);
         Contact contact = Contact.builder().build();
 

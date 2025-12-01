@@ -1,4 +1,4 @@
-package com.pjdereva.minto.membership.payload.request.application;
+package com.pjdereva.minto.membership.dto.application;
 
 import com.pjdereva.minto.membership.model.PhoneType;
 import lombok.AllArgsConstructor;
@@ -10,8 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PhoneRequest {
+public class PhoneDTO {
 
+    private Long phoneId;
     private PhoneType type;
     private String number;
     private String countryCode;

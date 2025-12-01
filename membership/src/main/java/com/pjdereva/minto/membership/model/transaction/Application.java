@@ -1,5 +1,7 @@
 package com.pjdereva.minto.membership.model.transaction;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pjdereva.minto.membership.model.Person;
 import com.pjdereva.minto.membership.model.User;
 import jakarta.persistence.*;
@@ -39,20 +41,23 @@ public class Application {
     private ApplicationStatus applicationStatus = ApplicationStatus.DRAFT;
 
     // NEW: Application belongs to User (the applicant)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     @ToString.Exclude
+    @JsonManagedReference
     private User user;
 
     // Primary applicant - owning side
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "person_id", unique = true, nullable = false)
     @ToString.Exclude
+    @JsonManagedReference
     private Person person;
 
     // Member created from this application (optional - only after approval)
-    @OneToOne(mappedBy = "application", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "application", fetch = FetchType.EAGER)
     @ToString.Exclude
+    @JsonBackReference
     private Member member;
 
     @Enumerated(EnumType.STRING)
@@ -61,30 +66,37 @@ public class Application {
 
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonManagedReference
     private Set<Parent> parents = new HashSet<>();
 
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonManagedReference
     private Set<Spouse> spouses = new HashSet<>();
 
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonManagedReference
     private Set<Child> children = new HashSet<>();
 
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonManagedReference
     private Set<Sibling> siblings = new HashSet<>();
 
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonManagedReference
     private Set<Referee> referees = new HashSet<>();
 
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonManagedReference
     private Set<Relative> relatives = new HashSet<>();
 
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonManagedReference
     private Set<Beneficiary> beneficiaries = new HashSet<>();
 
     @Column(name = "submitted_date")

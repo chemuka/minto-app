@@ -1,4 +1,4 @@
-package com.pjdereva.minto.membership.payload.request.application;
+package com.pjdereva.minto.membership.dto.application;
 
 import com.pjdereva.minto.membership.model.EmailType;
 import lombok.AllArgsConstructor;
@@ -10,8 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class EmailRequest {
+public class EmailDTO {
 
+    private Long emailId;
     private EmailType type;
     private String address;
 }

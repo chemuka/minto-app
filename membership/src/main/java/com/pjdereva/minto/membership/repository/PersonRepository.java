@@ -31,6 +31,12 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
             "WHERE p.id = :id")
     Optional<Person> findByIdWithFullContact(@Param("id") Long id);
 
+    @Query("SELECT p FROM Person p LEFT JOIN FETCH p.contact c " +
+            "LEFT JOIN FETCH c.addresses " +
+            "LEFT JOIN FETCH c.phones " +
+            "LEFT JOIN FETCH c.emails ")
+    List<Person> findAllWithFullContact();
+
     @Query("SELECT p FROM Person p WHERE " +
             "LOWER(p.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
             "LOWER(p.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +

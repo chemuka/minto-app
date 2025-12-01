@@ -1,10 +1,8 @@
 package com.pjdereva.minto.membership.controller;
 
-import com.pjdereva.minto.membership.dto.MemberDTO;
 import com.pjdereva.minto.membership.model.transaction.Application;
 import com.pjdereva.minto.membership.model.transaction.ApplicationStatus;
-import com.pjdereva.minto.membership.model.transaction.Member;
-import com.pjdereva.minto.membership.payload.request.application.ApplicationRequest;
+import com.pjdereva.minto.membership.dto.application.ApplicationDTO;
 import com.pjdereva.minto.membership.service.impl.ApplicationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +29,13 @@ public class ApplicationController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getApplicationById(@PathVariable Long id) {
-        var application = applicationService.getApplicationById(id);
+        var application = applicationService.findById(id);
+        return ResponseEntity.ok(application);
+    }
+
+    @GetMapping("/person/{id}")
+    public ResponseEntity<?> getApplicationByIdWithPersonAndContact(@PathVariable Long id) {
+        var application = applicationService.findByIdWithPersonAndContact(id);
         return ResponseEntity.ok(application);
     }
 
@@ -79,10 +83,10 @@ public class ApplicationController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createApplicationForUser(@RequestBody ApplicationRequest applicationRequest) {
+    public ResponseEntity<?> createApplicationForUser(@RequestBody ApplicationDTO applicationDTO) {
         Application app = null;
         try {
-            app = applicationService.createApplicationForUser(applicationRequest.getUserId());
+            app = applicationService.createApplicationForUser(applicationDTO.getUserId());
         } catch (Exception e) {
             return ResponseEntity.ok(e.getMessage());
         }
@@ -90,38 +94,38 @@ public class ApplicationController {
     }
 
     @PostMapping("/add-people")
-    public ResponseEntity<?> addPeopleAndOtherInfo(@RequestBody ApplicationRequest applicationRequest) {
+    public ResponseEntity<?> addPeopleAndOtherInfo(@RequestBody ApplicationDTO applicationDTO) {
         try {
-            log.info("applicationRequest: {}", applicationRequest);
-            applicationService.addPeopleAndOtherInfo(applicationRequest);
+            log.info("applicationDTO: {}", applicationDTO);
+            applicationService.addPeopleAndOtherInfo(applicationDTO);
         } catch (Exception e) {
             log.error("Add people failed: {}", e.getMessage());
             return ResponseEntity.ok(e.getMessage());
         }
         return ResponseEntity.ok("Family members, referees and beneficiaries added to application " +
-                applicationRequest.getApplicationNumber());
+                applicationDTO.getApplicationNumber());
     }
 
     @PostMapping("/submit")
-    public ResponseEntity<?> submitApplication(@RequestBody ApplicationRequest applicationRequest) {
+    public ResponseEntity<?> submitApplication(@RequestBody ApplicationDTO applicationDTO) {
         try {
-            applicationService.submitApplication(applicationRequest.getApplicationId(),
-                    applicationRequest.getUserId());
+            applicationService.submitApplication(applicationDTO.getApplicationId(),
+                    applicationDTO.getUserId());
         } catch (Exception e) {
             return ResponseEntity.ok(e.getMessage());
         }
-        return ResponseEntity.ok("Application " + applicationRequest.getApplicationNumber() +
+        return ResponseEntity.ok("Application " + applicationDTO.getApplicationNumber() +
                 " submitted successfully.");
     }
 
     @PostMapping("/review")
-    public ResponseEntity<?> setApplicationUnderReview(@RequestBody ApplicationRequest applicationRequest) {
+    public ResponseEntity<?> setApplicationUnderReview(@RequestBody ApplicationDTO applicationDTO) {
         try {
-            applicationService.setApplicationUnderReview(applicationRequest.getApplicationId());
+            applicationService.setApplicationUnderReview(applicationDTO.getApplicationId());
         } catch (Exception e) {
             return ResponseEntity.ok(e.getMessage());
         }
-        return ResponseEntity.ok("Application: " + applicationRequest.getApplicationNumber()  +
+        return ResponseEntity.ok("Application: " + applicationDTO.getApplicationNumber()  +
                 ", is now under review.");
     }
 
@@ -137,26 +141,26 @@ public class ApplicationController {
     }
 
     @PostMapping("/reject")
-    public ResponseEntity<?> rejectApplication(@RequestBody ApplicationRequest applicationRequest) {
+    public ResponseEntity<?> rejectApplication(@RequestBody ApplicationDTO applicationDTO) {
         try {
-            applicationService.rejectApplication(applicationRequest.getApplicationId(),
-                    applicationRequest.getRejectionReason());
+            applicationService.rejectApplication(applicationDTO.getApplicationId(),
+                    applicationDTO.getRejectionReason());
         } catch (Exception ex) {
             return ResponseEntity.ok(ex.getMessage());
         }
-        return ResponseEntity.ok("Application: " + applicationRequest.getApplicationNumber() +
-                " rejected for the following reason: " + applicationRequest.getRejectionReason());
+        return ResponseEntity.ok("Application: " + applicationDTO.getApplicationNumber() +
+                " rejected for the following reason: " + applicationDTO.getRejectionReason());
     }
 
     @PostMapping("/withdraw")
-    public ResponseEntity<?> withdrawApplication(@RequestBody ApplicationRequest applicationRequest) {
+    public ResponseEntity<?> withdrawApplication(@RequestBody ApplicationDTO applicationDTO) {
         try {
-            applicationService.withdrawApplication(applicationRequest.getApplicationId(),
-                    applicationRequest.getUserId());
+            applicationService.withdrawApplication(applicationDTO.getApplicationId(),
+                    applicationDTO.getUserId());
         } catch (Exception e) {
             return ResponseEntity.ok(e.getMessage());
         }
-        return ResponseEntity.ok("Application: " + applicationRequest.getApplicationNumber() +
+        return ResponseEntity.ok("Application: " + applicationDTO.getApplicationNumber() +
                 ", withdrawn by the user.");
     }
 

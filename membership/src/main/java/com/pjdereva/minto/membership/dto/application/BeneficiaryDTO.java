@@ -1,4 +1,4 @@
-package com.pjdereva.minto.membership.payload.request.application;
+package com.pjdereva.minto.membership.dto.application;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -10,8 +10,10 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-public class BeneficiaryRequest extends PersonRequest {
+public class BeneficiaryDTO extends PersonDTO {
 
+    private Long beneficiaryId;
     private BigDecimal percentage;
     private String relationship;
+    private String notes;
 }

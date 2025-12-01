@@ -50,12 +50,12 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public List<Person> getAllPeople() {
-        return personRepository.findAll();
+        return personRepository.findAllWithFullContact();
     }
 
     @Override
     public Optional<Person> getPersonById(Long id) {
-        return personRepository.findById(id);
+        return personRepository.findByIdWithFullContact(id);
     }
 
     @Override

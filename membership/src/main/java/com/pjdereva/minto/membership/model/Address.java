@@ -1,5 +1,6 @@
 package com.pjdereva.minto.membership.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,9 +17,10 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "contact_id", nullable = false)
     @ToString.Exclude
+    @JsonBackReference
     private Contact contact;
 
     @Enumerated(EnumType.STRING)

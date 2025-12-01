@@ -1,4 +1,4 @@
-package com.pjdereva.minto.membership.payload.request.application;
+package com.pjdereva.minto.membership.dto.application;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -8,7 +8,10 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-public class RefereeRequest extends PersonRequest {
+public class RefereeDTO extends PersonDTO {
 
+    private Long refereeId;
     private String membershipNumber;
+    private String comments;
+    private String notes;
 }

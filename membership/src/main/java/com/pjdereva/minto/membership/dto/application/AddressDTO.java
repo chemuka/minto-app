@@ -1,4 +1,4 @@
-package com.pjdereva.minto.membership.payload.request.application;
+package com.pjdereva.minto.membership.dto.application;
 
 import com.pjdereva.minto.membership.model.AddressType;
 import lombok.AllArgsConstructor;
@@ -10,8 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AddressRequest {
+public class AddressDTO {
 
+    private Long addressId;
     private AddressType type;
     private String street;
     private String city;

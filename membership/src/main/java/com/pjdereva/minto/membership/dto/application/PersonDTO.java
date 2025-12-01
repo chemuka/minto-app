@@ -1,8 +1,7 @@
-package com.pjdereva.minto.membership.payload.request.application;
+package com.pjdereva.minto.membership.dto.application;
 
 import com.pjdereva.minto.membership.model.transaction.LifeStatus;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -13,12 +12,15 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class PersonRequest {
+public class PersonDTO {
 
+    private Long personId;
     private String firstName;
-    private String lastName;
     private String middleName;
+    private String lastName;
     private LocalDate dob;
     private LifeStatus lifeStatus;
-    private ContactRequest contact;
+    private String createdAt;
+    private String updatedAt;
+    private ContactDTO contact;
 }

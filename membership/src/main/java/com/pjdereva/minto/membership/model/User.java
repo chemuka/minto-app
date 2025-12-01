@@ -1,5 +1,7 @@
 package com.pjdereva.minto.membership.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pjdereva.minto.membership.model.transaction.Application;
 import com.pjdereva.minto.membership.model.transaction.ApplicationStatus;
 import com.pjdereva.minto.membership.model.transaction.Member;
@@ -75,11 +77,13 @@ public class User implements UserDetails {
     // User can have multiple applications (reapply if rejected)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonBackReference
     private Set<Application> applications = new HashSet<>();
 
     // User becomes a Member after application approval (optional)
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     @ToString.Exclude
+    @JsonManagedReference
     private Member member;
 
     @Enumerated(EnumType.STRING)

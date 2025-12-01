@@ -2,6 +2,7 @@ package com.pjdereva.minto.membership.service;
 
 import com.pjdereva.minto.membership.exception.UserEmailNotFoundException;
 import com.pjdereva.minto.membership.model.*;
+import com.pjdereva.minto.membership.model.transaction.LifeStatus;
 import com.pjdereva.minto.membership.payload.request.AuthenticationRequest;
 import com.pjdereva.minto.membership.payload.request.ChangePasswordRequest;
 import com.pjdereva.minto.membership.payload.response.AuthenticationResponse;
@@ -28,6 +29,28 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
+        // Create Person with basic info
+        Person person = Person.builder()
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .lifeStatus(LifeStatus.LIVING)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        // Create Contact with email
+        Contact contact = Contact.builder()
+                .notes("Created by User.")
+                .build();
+
+        Email email = Email.builder()
+                .emailType(EmailType.PERSONAL)
+                .address(request.getEmail())
+                .build();
+
+        contact.addEmail(email);
+        person.setContact(contact);
+
         var user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -37,6 +60,7 @@ public class AuthenticationService {
                 .source(RegistrationSource.SIGNUP)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
+                .person(person)
                 .build();
         var savedUser = userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
@@ -52,12 +76,18 @@ public class AuthenticationService {
 
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
 
+        Person person = user.getPerson();
+        person.setFirstName(userUpdateDto.firstName());
+        person.setLastName(userUpdateDto.lastName());
+        person.setUpdatedAt(LocalDateTime.now());
+
         user.setFirstName(userUpdateDto.firstName());
         user.setLastName(userUpdateDto.lastName());
         user.setPassword(passwordEncoder.encode(userUpdateDto.password()));
         user.setRole(Role.valueOf(userUpdateDto.role()));
         user.setPicture(userUpdateDto.picture());
         user.setUpdatedAt(LocalDateTime.now());
+        user.setPerson(person);
 
         var savedUser = userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);

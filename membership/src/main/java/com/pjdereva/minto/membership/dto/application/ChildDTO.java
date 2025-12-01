@@ -1,4 +1,4 @@
-package com.pjdereva.minto.membership.payload.request.application;
+package com.pjdereva.minto.membership.dto.application;
 
 import com.pjdereva.minto.membership.model.transaction.ChildType;
 import lombok.*;
@@ -9,7 +9,9 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-public class ChildRequest extends PersonRequest {
+public class ChildDTO extends PersonDTO {
 
+    private Long childId;
     private ChildType childType;
+    private String notes;
 }
