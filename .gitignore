@@ -1,0 +1,4 @@
+# Ignore temporary directory
+/temp/
+# Ignore log files
+*.log

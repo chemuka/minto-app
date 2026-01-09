@@ -61,6 +61,7 @@ public class DraftApplicationServiceImpl implements DraftApplicationService {
 
             log.info("Updating existing draft application: {}", application.getApplicationNumber());
             application.setNotes(draft.getNotes());
+            application.setAppUpdatedAt(LocalDateTime.now());
         } else {
             // Create new application
             application = applicationRepository.findByUserIdAndApplicationStatus(
@@ -211,6 +212,7 @@ public class DraftApplicationServiceImpl implements DraftApplicationService {
             person.setMiddleName(data.getMiddleName());
             person.setDob(LocalDate.parse(data.getDob()));
             person.setLifeStatus(LifeStatus.fromLabel(data.getLifeStatus()));
+            person.setUpdatedAt(LocalDateTime.now());
 
             // Update or create contact
             if (data.getContact() != null) {
@@ -219,6 +221,8 @@ public class DraftApplicationServiceImpl implements DraftApplicationService {
                     log.debug("Person -> Contact is NULL");
                     contact = new Contact();
                     person.setContact(contact);
+                } else {
+                    contact.setUpdatedAt(LocalDateTime.now());
                 }
 
                 // Update addresses
@@ -573,6 +577,7 @@ public class DraftApplicationServiceImpl implements DraftApplicationService {
             // UPDATE existing person
             person = personRepository.findById(request.getId())
                     .orElseThrow(() -> new RuntimeException("Person not found: " + request.getId()));
+            person.setUpdatedAt(LocalDateTime.now());
         } else {
             // CREATE new person
             person = new Person();
@@ -595,6 +600,7 @@ public class DraftApplicationServiceImpl implements DraftApplicationService {
         person.setMiddleName(data.getMiddleName());
         person.setDob(LocalDate.parse(data.getDob()));
         person.setLifeStatus(LifeStatus.fromLabel(data.getLifeStatus()));
+        person.setUpdatedAt(LocalDateTime.now());
 
         // Update or create contact
         if (data.getContact() != null) {
@@ -603,6 +609,8 @@ public class DraftApplicationServiceImpl implements DraftApplicationService {
                 log.debug("Person({} {}) -> Contact is NULL", person.getFirstName(), person.getLastName());
                 contact = new Contact();
                 person.setContact(contact);
+            } else {
+                contact.setUpdatedAt(LocalDateTime.now());
             }
 
             // Update addresses
