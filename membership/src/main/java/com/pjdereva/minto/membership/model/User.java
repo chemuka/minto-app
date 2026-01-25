@@ -77,13 +77,12 @@ public class User implements UserDetails {
     // User can have multiple applications (reapply if rejected)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    @JsonBackReference
+    @JsonManagedReference(value = "user-applications")
     private Set<Application> applications = new HashSet<>();
 
     // User becomes a Member after application approval (optional)
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     @ToString.Exclude
-    @JsonManagedReference
     private Member member;
 
     @Enumerated(EnumType.STRING)

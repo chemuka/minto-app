@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -467,8 +468,41 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public Application updateApplication(Application application) {
-        application.setAppUpdatedAt(LocalDateTime.now());
-        return applicationRepository.save(application);
+        Optional<Application> app = applicationRepository.findById(application.getId());
+
+        if(app.isPresent()) {
+            Application updatedApp = app.get();
+            updatedApp.setApplicationStatus(application.getApplicationStatus());
+            updatedApp.setMaritalStatus(application.getMaritalStatus());
+            updatedApp.setPerson(application.getPerson());
+            updatedApp.setParents(application.getParents());
+            updatedApp.setSpouses(application.getSpouses());
+            updatedApp.setChildren(application.getChildren());
+            updatedApp.setSiblings(application.getSiblings());
+            updatedApp.setReferees(application.getReferees());
+            updatedApp.setRelatives(application.getRelatives());
+            updatedApp.setBeneficiaries(application.getBeneficiaries());
+            updatedApp.setSubmittedDate(application.getSubmittedDate());
+            updatedApp.setApprovedDate(application.getApprovedDate());
+            updatedApp.setRejectedDate(application.getRejectedDate());
+            updatedApp.setNotes(application.getNotes());
+            updatedApp.setRejectionReason(application.getRejectionReason());
+            updatedApp.setAppUpdatedAt(LocalDateTime.now());
+
+            var user = updatedApp.getUser();
+            if(!(user.equals(application.getUser()))) {
+                log.error("Saved user is not same as user in request.");
+                //updatedApp.setUser(application.getUser());
+            }
+
+            return applicationRepository.save(updatedApp);
+        } else {
+            Optional<Application> newApplication = createApplication(application);
+            if(newApplication.isPresent())
+                return newApplication.get();
+            else
+                throw new NoSuchElementException("Application update failure");
+        }
     }
 
     @Override

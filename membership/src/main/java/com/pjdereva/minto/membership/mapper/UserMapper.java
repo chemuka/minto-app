@@ -19,6 +19,8 @@ public interface UserMapper {
     // For UserDto
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     User toUser(UserDto userDto);
 
     @Mapping(target = "createdAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
@@ -29,6 +31,8 @@ public interface UserMapper {
 
     // For GetUserDTO
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     User toUser(GetUserDTO getUserDTO);
 
     @Mapping(target = "createdAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
@@ -39,6 +43,8 @@ public interface UserMapper {
 
     // For AddUserDTO
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     User toUser(AddUserDTO addUserDTO);
 
     AddUserDTO toAddUserDTO(User user);
@@ -47,6 +53,8 @@ public interface UserMapper {
 
     // For UserInfoDTO
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     User toUser(UserInfoDTO userInfoDTO);
 
     @Mapping(target = "createdAt", dateFormat = "yyyy-MM-dd HH:mm:ss")

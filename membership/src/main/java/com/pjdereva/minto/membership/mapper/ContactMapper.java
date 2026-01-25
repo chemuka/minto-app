@@ -14,6 +14,8 @@ public interface ContactMapper {
 
     //ContactMapper INSTANCE = Mappers.getMapper(ContactMapper.class);
 
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     Contact toContact(ContactDTO contactDTO);
 
     @Mapping(target = "createdAt", dateFormat = "yyyy-MM-dd HH:mm:ss")

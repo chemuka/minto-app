@@ -274,9 +274,117 @@ public class DraftApplicationServiceImpl implements DraftApplicationService {
         return applicationMapper.toApplicationDTO(application);
     }
 
+    /**
+     * Save or update application draft
+     * This method handles deduplication of all related entities
+     */
+    @Transactional
+    @Override
+    public ApplicationDTO updateApplication(User user, ApplicationDTO draft) {
+        Application application;
+
+        // Get existing draft or create new one
+        if (draft.getId() != null) {
+            application = applicationRepository.findById(draft.getId())
+                    .orElseThrow(() -> new RuntimeException("Application not found"));
+
+            // Verify authorization
+            // TODO: Fix authorization in the Security Configuration
+            if (!(user.isAdmin() || user.isStaff())) {
+                throw new SecurityException("User does not have appropriate authority to update application");
+            }
+
+            log.info("Updating existing application: {}", application.getApplicationNumber());
+            application.setNotes(draft.getNotes());
+            application.setAppUpdatedAt(LocalDateTime.now());
+        } else {
+            // Application does not exist
+            log.info("Application does not exist");
+            throw new RuntimeException("Application does not exist");
+        }
+
+        // Update basic application info
+        application.setMaritalStatus(draft.getMaritalStatus());
+
+        // Update application status
+        updateApplicationStatus(application, draft.getApplicationStatus());
+
+        // TODO: Update person info with deduplication
+        //updatePersonalInfo(user.getPerson().getId(), draft.getPerson());
+        updatePersonalInfo(application, draft.getPerson());
+
+        // Update family members with deduplication
+        updateParents(application, draft.getParents());
+        updateSpouses(application, draft.getSpouses());
+        updateChildren(application, draft.getChildren());
+        updateSiblings(application, draft.getSiblings());
+        updateRelatives(application, draft.getRelatives());
+        updateBeneficiaries(application, draft.getBeneficiaries());
+        updateReferees(application, draft.getReferees());
+
+        //user.addApplication(application);
+        application = applicationRepository.save(application);
+
+        log.info("Application updated successfully: {}", application.getApplicationNumber());
+        return applicationMapper.toApplicationDTO(application);
+    }
+
     // ========================================================================
     // DEDUPLICATION METHODS - Key to preventing duplicates
     // ========================================================================
+
+    private void updateApplicationStatus(Application application, ApplicationStatus applicationStatus) {
+
+        switch (applicationStatus) {
+            case DRAFT -> {
+                if (application.getApplicationStatus().equals(ApplicationStatus.DRAFT))
+                    break;
+                application.setApprovedDate(null);
+                application.setSubmittedDate(null);
+                application.setRejectedDate(null);
+                application.setRejectionReason("");
+                application.setApplicationStatus(applicationStatus);
+            }
+            case SUBMITTED -> {
+                if (application.getApplicationStatus().equals(ApplicationStatus.SUBMITTED))
+                    break;
+                application.setApprovedDate(null);
+                application.setRejectedDate(null);
+                application.setRejectionReason("");
+                application.submit();
+            }
+            case UNDER_REVIEW -> {
+                if (application.getApplicationStatus().equals(ApplicationStatus.UNDER_REVIEW))
+                    break;
+                application.setApprovedDate(null);
+                application.setRejectedDate(null);
+                application.setRejectionReason("");
+                application.setApplicationStatus(applicationStatus);
+            }
+            case RETURNED -> {
+                if (application.getApplicationStatus().equals(ApplicationStatus.RETURNED))
+                    break;
+                application.returned();
+            }
+            case REJECTED -> {
+                if (application.getApplicationStatus().equals(ApplicationStatus.REJECTED))
+                    break;
+                application.reject("Rejected by Admin/Staff through an update.");
+            }
+            case APPROVED -> {
+                if (application.getApplicationStatus().equals(ApplicationStatus.APPROVED))
+                    break;
+                if(application.getApplicationStatus().equals(ApplicationStatus.DRAFT) ||
+                application.getApplicationStatus().equals(ApplicationStatus.RETURNED) ||
+                application.getApplicationStatus().equals(ApplicationStatus.WITHDRAWN)) {
+                    application.submit();
+                }
+                application.approve();
+
+            }
+            case WITHDRAWN -> application.setApplicationStatus(applicationStatus);
+        }
+    }
 
     private void updatePersonalInfo(Application application, PersonDTO data) {
         if (data == null) return;

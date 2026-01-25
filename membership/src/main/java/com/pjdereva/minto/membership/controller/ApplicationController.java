@@ -93,7 +93,7 @@ public class ApplicationController {
         return ResponseEntity.ok(app);
     }
 
-    @PutMapping
+    @PatchMapping
     public ResponseEntity<?> updateApplication(@RequestBody ApplicationDTO applicationDTO) {
         var application = applicationMapper.toApplication(applicationDTO);
         var app = applicationService.updateApplication(application);

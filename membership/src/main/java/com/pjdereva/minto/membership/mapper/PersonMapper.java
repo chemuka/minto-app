@@ -15,6 +15,8 @@ public interface PersonMapper {
 
     //PersonMapper INSTANCE = Mappers.getMapper(PersonMapper.class);
 
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     Person toPerson(PersonDTO personDTO);
 
     @Mapping(target = "dob", dateFormat = "yyyy-MM-dd")

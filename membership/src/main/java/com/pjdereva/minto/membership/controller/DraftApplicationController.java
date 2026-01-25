@@ -183,4 +183,39 @@ public class DraftApplicationController {
                             .build());
         }
     }
+
+    /**
+     * update draft application
+     * PATCH /api/v1/applications/draft
+     */
+    @PatchMapping
+    public ResponseEntity<DraftResponse> updateApplication(
+            @RequestBody ApplicationDTO draft,
+            Principal currentUser) {
+
+        var user = (User) ((UsernamePasswordAuthenticationToken) currentUser).getPrincipal();
+
+        log.info("{}: {} {} is updating application.", user.getRole(), user.getFirstName(),user.getLastName());
+
+        try {
+            ApplicationDTO application = draftApplicationService.updateApplication(user, draft);
+
+            DraftResponse response = DraftResponse.builder()
+                    .success(true)
+                    .message("Application updated successfully")
+                    .applicationId(application.getId())
+                    .applicationNumber(application.getApplicationNumber())
+                    .build();
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("Error updating application ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(DraftResponse.builder()
+                            .success(false)
+                            .message("Failed to update application: " + e.getMessage())
+                            .build());
+        }
+    }
 }

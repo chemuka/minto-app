@@ -722,15 +722,16 @@ const ModifyApplication = (props) => {
                                                     <div className="form-floating">
                                                         <select
                                                             id={`${arrayName}-${index}-address-type`}
-                                                            value={address.type}
-                                                            onChange={(e) => updateContactForPerson(arrayName, index, 'addresses', addrIndex, 'type', e.target.value)}
+                                                            value={address.addressType}
+                                                            onChange={(e) => updateContactForPerson(arrayName, index, 'addresses', addrIndex, 'addressType', e.target.value)}
                                                             className="form-select"
                                                         >
-                                                            <option value="">Select...</option>
+                                                            <option value="">-- Select --</option>
                                                             <option value="Home">Home</option>
                                                             <option value="Work">Work</option>
                                                             <option value="School">School</option>
-                                                            <option value="Mailing">Mailing</option>
+                                                            <option value="Billing">Billing</option>
+                                                            <option value="Shipping">Shipping</option>
                                                             <option value="Other">Other</option>
                                                         </select>
                                                         <label htmlFor={`${arrayName}-${index}-address-type`}>Type</label>
@@ -845,11 +846,11 @@ const ModifyApplication = (props) => {
                                                     <div className="form-floating">
                                                         <select
                                                             id={`${arrayName}-${index}-email-type`}
-                                                            value={email.type}
-                                                            onChange={(e) => updateContactForPerson(arrayName, index, 'emails', emailIndex, 'type', e.target.value)}
+                                                            value={email.emailType}
+                                                            onChange={(e) => updateContactForPerson(arrayName, index, 'emails', emailIndex, 'emailType', e.target.value)}
                                                             className="form-select"
                                                         >
-                                                            <option value="">Select...</option>
+                                                            <option value="">-- Select --</option>
                                                             <option value="Personal">Personal</option>
                                                             <option value="Work">Work</option>
                                                             <option value="School">School</option>
@@ -917,11 +918,11 @@ const ModifyApplication = (props) => {
                                                     <div className="form-floating">
                                                         <select
                                                             id={`${arrayName}-${index}-phone-type`}
-                                                            value={phone.type}
-                                                            onChange={(e) => updateContactForPerson(arrayName, index, 'phones', phoneIndex, 'type', e.target.value)}
+                                                            value={phone.phoneType}
+                                                            onChange={(e) => updateContactForPerson(arrayName, index, 'phones', phoneIndex, 'phoneType', e.target.value)}
                                                             className="form-select"
                                                         >
-                                                            <option value="">Select...</option>
+                                                            <option value="">-- Select --</option>
                                                             <option value="Mobile">Mobile</option>
                                                             <option value="Home">Home</option>
                                                             <option value="Work">Work</option>
@@ -1169,15 +1170,16 @@ const ModifyApplication = (props) => {
                                             <div className="form-floating">
                                                 <select
                                                     id={`address-type-${index}`}
-                                                    value={address.type}
-                                                    onChange={(e) => updateContact('addresses', index, 'type', e.target.value)}
+                                                    value={address.addressType}
+                                                    onChange={(e) => updateContact('addresses', index, 'addressType', e.target.value)}
                                                     className="form-select"
                                                 >
-                                                    <option value="">Select...</option>
+                                                    <option value="">-- Select --</option>
                                                     <option value="Home">Home</option>
                                                     <option value="Work">Work</option>
                                                     <option value="School">School</option>
-                                                    <option value="Mailing">Mailing</option>
+                                                    <option value="Billing">Billing</option>
+                                                    <option value="Shipping">Shipping</option>
                                                     <option value="Other">Other</option>
                                                 </select>
                                                 <label htmlFor={`address-type-${index}`}>Type</label>
@@ -1292,11 +1294,11 @@ const ModifyApplication = (props) => {
                                             <div className="form-floating">
                                                 <select
                                                     id={`email-type-${index}`}
-                                                    value={email.type}
-                                                    onChange={(e) => updateContact('emails', index, 'type', e.target.value)}
+                                                    value={email.emailType}
+                                                    onChange={(e) => updateContact('emails', index, 'emailType', e.target.value)}
                                                     className="form-select"
                                                 >
-                                                    <option value="">Select...</option>
+                                                    <option value="">-- Select --</option>
                                                     <option value="Personal">Personal</option>
                                                     <option value="Work">Work</option>
                                                     <option value="School">School</option>
@@ -1364,11 +1366,11 @@ const ModifyApplication = (props) => {
                                             <div className="form-floating">
                                                 <select
                                                     id={`phone-type-${index}`}
-                                                    value={phone.type}
-                                                    onChange={(e) => updateContact('phones', index, 'type', e.target.value)}
+                                                    value={phone.phoneType}
+                                                    onChange={(e) => updateContact('phones', index, 'phoneType', e.target.value)}
                                                     className="form-select"
                                                 >
-                                                    <option value="">Select...</option>
+                                                    <option value="">-- Select --</option>
                                                     <option value="Mobile">Mobile</option>
                                                     <option value="Home">Home</option>
                                                     <option value="Work">Work</option>

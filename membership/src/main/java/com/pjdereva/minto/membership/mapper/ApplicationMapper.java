@@ -16,6 +16,11 @@ public interface ApplicationMapper {
     //ApplicationMapper INSTANCE = Mappers.getMapper(ApplicationMapper.class);
 
     @Mapping(target = "member", ignore = true)
+    @Mapping(target = "appCreatedAt", ignore = true)
+    @Mapping(target = "appUpdatedAt", ignore = true)
+    @Mapping(target = "submittedDate", ignore = true)
+    @Mapping(target = "approvedDate", ignore = true)
+    @Mapping(target = "rejectedDate", ignore = true)
     Application toApplication(ApplicationDTO applicationDTO);
 
     @Mapping(target = "submittedDate", dateFormat = "yyyy-MM-dd HH:mm:ss")

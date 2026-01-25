@@ -39,12 +39,12 @@ const EditApplication = () => {
     const onSubmit = async (e) => {
         e.preventDefault();
         setLoading(true)
-        console.log('[EditApplication]:=> ')
-        console.log('FormData:', formData)
+        //console.log('[EditApplication]:=> ')
+        //console.log('FormData:', formData)
 
         try {
-            const response = await fetchWithAuth(`http://localhost:8080/api/v1/applications`, {
-                method: 'PUT',
+            const response = await fetchWithAuth(`http://localhost:8080/api/v1/applications/draft`, {
+                method: 'PATCH',
                 credentials: "include",
                 headers: { 
                     'Content-Type': 'application/json',
@@ -105,7 +105,7 @@ const EditApplication = () => {
                     { 
                         selectedApplication && !viewApplication && (
                             <>
-                            { console.log('selectedApplication:', formData)}
+                            {/* console.log('selectedApplication:', formData) */}
                             <ModifyApplication
                                 formData={formData}
                                 setFormData={setFormData}

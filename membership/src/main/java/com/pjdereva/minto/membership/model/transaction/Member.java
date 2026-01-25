@@ -1,5 +1,6 @@
 package com.pjdereva.minto.membership.model.transaction;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pjdereva.minto.membership.model.Person;
 import com.pjdereva.minto.membership.model.User;
@@ -33,21 +34,18 @@ public class Member {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", unique = true, nullable = false)
     @ToString.Exclude
-    @JsonManagedReference
     private User user;
 
     // Link to the person (same person as in application)
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "person_id", unique = true, nullable = false)
     @ToString.Exclude
-    @JsonManagedReference
     private Person person;
 
     // Reference to the approved application that created this membership
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "application_id", unique = true, nullable = false)
     @ToString.Exclude
-    @JsonManagedReference
     private Application application;
 
     @Enumerated(EnumType.STRING)

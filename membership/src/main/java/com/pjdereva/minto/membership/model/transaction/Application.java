@@ -44,7 +44,7 @@ public class Application {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @ToString.Exclude
-    @JsonManagedReference
+    @JsonBackReference(value = "user-applications")
     private User user;
 
     // Primary applicant - owning side
@@ -55,9 +55,8 @@ public class Application {
     private Person person;
 
     // Member created from this application (optional - only after approval)
-    @OneToOne(mappedBy = "application", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "application", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
-    @JsonBackReference
     private Member member;
 
     @Enumerated(EnumType.STRING)
@@ -213,6 +212,12 @@ public class Application {
         this.applicationStatus = ApplicationStatus.REJECTED;
         this.rejectedDate = LocalDateTime.now();
         this.rejectionReason = reason;
+    }
+
+    public void returned() {
+        this.applicationStatus = ApplicationStatus.RETURNED;
+        this.submittedDate = null;
+        this.approvedDate = null;
     }
 
     public boolean isEditable() {

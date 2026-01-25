@@ -22,8 +22,8 @@ public interface ParentMapper {
     @Mapping(target = "person.lifeStatus", source = "parentDTO.lifeStatus")
     @Mapping(target = "person.createdAt", source = "parentDTO.createdAt")
     @Mapping(target = "person.updatedAt", source = "parentDTO.updatedAt")
-    @Mapping(target = "person.contact", source = "parentDTO.contact") */
-    @Mapping(target = "application", ignore = true)
+    @Mapping(target = "person.contact", source = "parentDTO.contact")
+    @Mapping(target = "application", ignore = true) */
     Parent toParent(ParentDTO parentDTO);
     /*
     @Mapping(target = "firstName", source = "parent.person.firstName")

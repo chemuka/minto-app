@@ -9,4 +9,5 @@ public interface DraftApplicationService {
     ApplicationDTO loadDraft(Long userId);
     void deleteDraft(Long userId);
     ApplicationDTO submitDraft(User user, ApplicationDTO applicationDTO);
+    ApplicationDTO updateApplication(User user, ApplicationDTO applicationDTO);
 }

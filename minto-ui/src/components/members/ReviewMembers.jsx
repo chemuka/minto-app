@@ -20,7 +20,7 @@ const ReviewMembers = () => {
     const [formData, setFormData] = useState({ ...defaultMember })
 
     useEffect(() => {
-        console.log('selectedApplication:', selectedApplication)
+        //console.log('selectedApplication:', selectedApplication)
         if(selectedApplication) {
             setFormData(prev => ({
                 ...prev,
