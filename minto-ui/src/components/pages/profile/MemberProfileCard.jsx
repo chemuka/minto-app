@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types'
-import { Buildings, CalendarCheck, CalendarPlus, ClipboardCheck, EnvelopeAt, FolderSymlink, Geo, GlobeAmericas, Hash, Heart, HouseDoor, Map, People, PeopleFill, PersonArmsUp, PersonBadge, PersonCircle, PersonCheck, PersonCheckFill, PersonHeart, PersonHearts, PersonLinesFill, Telephone } from 'react-bootstrap-icons'
+import { Buildings, CalendarCheck, CalendarPlus, EnvelopeAt, FolderSymlink, Geo, GlobeAmericas, Hash, Heart, HouseDoor, 
+    Map, People, PeopleFill, PersonArmsUp, PersonBadge, PersonCircle, PersonCheck, PersonCheckFill, PersonHeart, PersonHearts, 
+    PersonLinesFill, Telephone, HeartPulse, CalendarDate, Lightbulb, CalendarX, Journals, PatchCheck} from 'react-bootstrap-icons'
 import MemberPersonInfoCard from "../../person/components/MemberPersonInfoCard"
 
 const MemberProfileCard = (props) => {
@@ -41,6 +43,16 @@ const MemberProfileCard = (props) => {
                                     {/* About */}
                                     <div className="pb-3">
                                         <h5 className="mt-4 mb-2"><strong>About</strong></h5>
+                                        <div className="mb-3">
+                                            <CalendarDate className="text-secondary" />
+                                            <span className="text-secondary mx-2">Date of Birth:</span>
+                                            <span className="">{memberData.application.person.dob}</span>
+                                        </div>
+                                        <div className="mb-3">
+                                            <HeartPulse className="text-secondary" />
+                                            <span className="text-secondary mx-2">Life Status:</span>
+                                            <span className="">{memberData.application.person.lifeStatus}</span>
+                                        </div>
                                         {memberData.application.person.contact.phones.map((phone, index) => (
                                             <div key={index} className="mb-3">
                                                 <Telephone className="text-secondary" />
@@ -107,9 +119,24 @@ const MemberProfileCard = (props) => {
                                             <span className="">{memberData.id}</span>
                                         </div>
                                         <div className="mb-3">
-                                            <PersonHeart className="text-secondary" />
-                                            <span className="text-secondary mx-2">Marital Status:</span>
-                                            <span className="">{memberData.application.maritalStatus}</span>
+                                            <Hash className="text-secondary" />
+                                            <span className="text-secondary mx-2">Membership Number:</span>
+                                            <span className="">{memberData.membershipNumber}</span>
+                                        </div>
+                                        <div className="mb-3">
+                                            <Lightbulb className="text-secondary" />
+                                            <span className="text-secondary mx-2">Membership Status:</span>
+                                            <span className="">{memberData.status}</span>
+                                        </div>
+                                        <div className="mb-3">
+                                            <CalendarCheck className="text-secondary" />
+                                            <span className="text-secondary mx-2">Start Date:</span>
+                                            <span className="">{memberData.startDate}</span>
+                                        </div>
+                                        <div className="mb-3">
+                                            <CalendarX className="text-secondary" />
+                                            <span className="text-secondary mx-2">End Date:</span>
+                                            <span className="">{memberData.endDate}</span>
                                         </div>
                                         <div className="mb-3">
                                             <CalendarCheck className="text-secondary" />
@@ -120,6 +147,11 @@ const MemberProfileCard = (props) => {
                                             <CalendarPlus className="text-secondary" />
                                             <span className="text-secondary mx-2">Member Updated At:</span>
                                             <span className="">{memberData.memberUpdatedAt}</span>
+                                        </div>
+                                        <div className="mb-3">
+                                            <Journals className="text-secondary" />
+                                            <span className="text-secondary mx-2">Notes:</span>
+                                            <span className="">{memberData.notes}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -135,9 +167,19 @@ const MemberProfileCard = (props) => {
                                             <span className="">{memberData.application.id}</span>
                                         </div>
                                         <div className="mb-3">
-                                            <ClipboardCheck className="text-secondary" />
+                                            <Hash className="text-secondary" />
+                                            <span className="text-secondary mx-2">Application Number:</span>
+                                            <span className="">{memberData.application.applicationNumber}</span>
+                                        </div>
+                                        <div className="mb-3">
+                                            <PatchCheck className="text-secondary" />
                                             <span className="text-secondary mx-2">Application Status:</span>
                                             <span className="">{memberData.application.applicationStatus}</span>
+                                        </div>
+                                        <div className="mb-3">
+                                            <PersonHeart className="text-secondary" />
+                                            <span className="text-secondary mx-2">Marital Status:</span>
+                                            <span className="">{memberData.application.maritalStatus}</span>
                                         </div>
                                         <div className="mb-3">
                                             <CalendarCheck className="text-secondary" />
@@ -148,6 +190,21 @@ const MemberProfileCard = (props) => {
                                             <CalendarPlus className="text-secondary" />
                                             <span className="text-secondary mx-2">App Updated At:</span>
                                             <span className="">{memberData.application.appUpdatedAt}</span>
+                                        </div>
+                                        <div className="mb-3">
+                                            <CalendarDate className="text-secondary" />
+                                            <span className="text-secondary mx-2">Submitted Date:</span>
+                                            <span className="">{memberData.application.submittedDate}</span>
+                                        </div>
+                                        <div className="mb-3">
+                                            <CalendarCheck className="text-secondary" />
+                                            <span className="text-secondary mx-2">Approved Date:</span>
+                                            <span className="">{memberData.application.approvedDate}</span>
+                                        </div>
+                                        <div className="mb-3">
+                                            <Journals className="text-secondary" />
+                                            <span className="text-secondary mx-2">Notes:</span>
+                                            <span className="">{memberData.application.notes}</span>
                                         </div>
                                     </div>
                                 </div>
