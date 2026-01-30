@@ -6,10 +6,12 @@ import MembersActionCell from "../renderer/buttons/MembersActionCell";
 import PropTypes from 'prop-types'
 import useFetch from "../hooks/useFetch";
 import { useAuth } from "../hooks/useAuth";
+//import useAuthFetch from "../hooks/useAuthFetch";
 
 const MembersGrid = (props) => {
     const { setSelectedMember, setViewMember } = props
     const { fetchWithAuth } = useFetch()
+    //const { authFetch } = useAuthFetch()
     const { isAuthenticated, getUser } = useAuth()
     const [rowData, setRowData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -26,9 +28,7 @@ const MembersGrid = (props) => {
                     });
                     
                     if (!response.ok) {
-                        console.log("[MemberGrid] - Network response was not ok")
-                        toast.error('HTTP Error: Network response was NOT ok!')
-                        throw new Error('Network response was not ok');
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
     
                     const membersData = await response.json()
@@ -41,7 +41,8 @@ const MembersGrid = (props) => {
                 }
                 
             } catch(error) {
-                console.log(error)
+                console.log('[Members Grid]:- ' + error.message)
+                toast.error('[Members Grid]:- ' + error.message)
             } finally {
                 setIsLoading(false);
             }

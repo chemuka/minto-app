@@ -6,11 +6,13 @@ import PropTypes from 'prop-types';
 import { toast } from 'sonner'
 import { useAuth } from "../hooks/useAuth";
 import useFetch from "../hooks/useFetch";
+//import useAuthFetch from "../hooks/useAuthFetch";
 
 const UserGrid = (props) => {
     const { setSelectedUser, setViewUser } = props
     const { isAuthenticated, getUser } = useAuth()
     const { fetchWithAuth } = useFetch()
+    //const { authFetch } = useAuthFetch()
     const gridRef = useRef(null)
     const [rowData, setRowData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -24,12 +26,10 @@ const UserGrid = (props) => {
                     const response = await fetchWithAuth("http://localhost:8080/api/v1/users", {
                         method: 'GET',
                         credentials: "include",
-                    });
+                    }); 
                     
                     if (!response.ok) {
-                        console.log("[UserGrid] - Network response was not ok")
-                        toast.error('HTTP Error: Network response was NOT ok!')
-                        throw new Error('Network response was not ok');
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
             
                     const usersData = await response.json();
@@ -40,8 +40,8 @@ const UserGrid = (props) => {
                     toast.warning('User NOT authenticated. Please login.')
                 }
             } catch (error) {
-                console.log('[ERROR]:- '+ error)
-                toast.error('Error loading users. ' + error.message)
+                console.log('[User Grid]:- '+ error.message)
+                toast.error('[User Grid]:- ' + error.message)
             } finally {
                 setIsLoading(false)
             }

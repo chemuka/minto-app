@@ -12,7 +12,7 @@ import ConfirmationModal from '../../misc/modals/ConfirmationModal';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import useFetch from '../../hooks/useFetch';
-import API_BASE_URL from '../../../apiConfig';
+//import API_BASE_URL from '../../../apiConfig';
 import LoadingSpinner from '../../loading/LoadingSpinner';
 import { defaultParent } from '../../../model/defaultParent';
 import { defaultSpouse } from '../../../model/defaultSpouse';
@@ -387,7 +387,7 @@ const DraftApplication = (props) => {
             setLoading(true)
             try {
                 if(user) {
-                    const response = await fetchWithAuth(`${API_BASE_URL}/applications/draft`, {
+                    const response = await fetchWithAuth(`http://localhost:8080/api/v1/applications/draft`, {
                         method: 'GET',
                         credentials: "include",
                     })

@@ -6,10 +6,12 @@ import PersonActionCell from "../renderer/buttons/PersonActionCell";
 import PropTypes from 'prop-types';
 import useFetch from "../hooks/useFetch";
 import { useAuth } from "../hooks/useAuth";
+//import useAuthFetch from "../hooks/useAuthFetch";
 
 const PeopleGrid = (props) => {
     const { setSelectedPerson, setViewPerson } = props
     const { fetchWithAuth } = useFetch()
+    //const { authFetch } = useAuthFetch()
     const { isAuthenticated, getUser } = useAuth()
     const gridRef = useRef(null)
     const [rowData, setRowData] = useState([]);
@@ -27,9 +29,7 @@ const PeopleGrid = (props) => {
                     });
                     
                     if (!response.ok) {
-                        console.log("[PeopleGrid] - Network response was not ok")
-                        toast.error('HTTP Error: Network response was NOT ok!')
-                        throw new Error('Network response was not ok');
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
             
                     const peopleData = await response.json();
@@ -40,8 +40,8 @@ const PeopleGrid = (props) => {
                     toast.warning('User NOT authenticated. Please login.')
                 }
             } catch (error) {
-                console.log('[ERROR]:- '+ error)
-                toast.error('Error loading people data. ' + error.message)
+                console.log('[People Grid]:- '+ error.message)
+                toast.error('[People Grid]:- ' + error.message)
             } finally {
                 setIsLoading(false);
             }

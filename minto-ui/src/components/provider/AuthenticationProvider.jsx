@@ -9,6 +9,8 @@ const AuthenticationProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
+    let isRefreshing = false;
+    let refreshPromise = null;
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
@@ -30,7 +32,7 @@ const AuthenticationProvider = ({ children }) => {
             })
 
             if (!response.ok) {
-                throw new Error('Invalid credentials')
+                throw new Error('Authentication failed. Please check your credentials.')
             }
 
             const jsonData = await response.json()
@@ -81,9 +83,11 @@ const AuthenticationProvider = ({ children }) => {
                 const data = await response.json()
                 console.log(data.message)
                 toast.success(data.message)
+            } else {
+                console.log('No user to log out.')
             }
         } catch(err) {
-            console.log('Logout Error:', err)
+            console.log('Logout Error:', err.message)
         } finally {
             userRef.current = null
             localStorage.removeItem('user')
@@ -93,37 +97,53 @@ const AuthenticationProvider = ({ children }) => {
     }
 
     const refreshJwt = async () => {
+        console.log('Refreshing JWT token...')
         try {
-            const storedUser = JSON.parse(localStorage.getItem('user'))
-            const response = await fetch('http://localhost:8080/api/v1/auth/refresh-token', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${storedUser.refreshToken}`
-                },
-            })
-    
-            if (!response.ok) {
-                throw new Error('Failed to refresh token')
-            }
-            
-            const jsonData = await response.json()
-            const accessToken = jsonData['access_token']
-            const refreshToken = jsonData['refresh_token']
-            const decoded = parseJwt(accessToken)
-
-            const authenticatedUser = { 
-                decoded: decoded, 
-                accessToken: accessToken, 
-                refreshToken: refreshToken,
+            if (isRefreshing && refreshPromise) {
+                console.log('Token refresh already in progress, waiting for it to complete...')
+                await refreshPromise;
+                //return;
             }
 
-            userRef.current = authenticatedUser
-            localStorage.setItem('user', JSON.stringify(authenticatedUser))
-            console.log('New refresh-token successful')
+            if (!isRefreshing) {
+                isRefreshing = true; 
+            }
+                const storedUser = JSON.parse(localStorage.getItem('user'))
+                refreshPromise = await fetch('http://localhost:8080/api/v1/auth/refresh-token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${storedUser.refreshToken}`
+                    },
+                })
+        
+                if (!refreshPromise.ok) {
+                    console.log('Failed to refresh token, logging out.')
+                    console.log(refreshPromise)
+                    throw new Error(`HTTP error! status: ${refreshPromise.status}`);
+                }
 
+                const jsonData = await refreshPromise.json()
+                const accessToken = jsonData['access_token']
+                const refreshToken = jsonData['refresh_token']
+                const decoded = parseJwt(accessToken)
+
+                const authenticatedUser = { 
+                    decoded: decoded, 
+                    accessToken: accessToken, 
+                    refreshToken: refreshToken,
+                }
+
+                userRef.current = authenticatedUser
+                localStorage.setItem('user', JSON.stringify(authenticatedUser))
+                console.log('New refresh-token successful')
+                refreshPromise = null;
+                isRefreshing = false;
+            //}
         } catch (error) {
-            console.error('Error refreshing token:', error);
+            refreshPromise = null;
+            isRefreshing = false;
+            console.error('[Error refreshing token]:', error.message);
             logout();
         }
     }

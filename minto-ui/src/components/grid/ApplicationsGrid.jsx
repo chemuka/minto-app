@@ -6,10 +6,12 @@ import PropTypes from 'prop-types'
 import ApplicationsActionCell from "../renderer/buttons/ApplicationsActionCell";
 import useFetch from "../hooks/useFetch";
 import { useAuth } from "../hooks/useAuth";
+//import useAuthFetch from "../hooks/useAuthFetch";
 
 const ApplicationsGrid = (props) => {
     const { setSelectedApplication, setViewApplication, url } = props
     const { fetchWithAuth } = useFetch()
+    //const { authFetch } = useAuthFetch()
     const { isAuthenticated, getUser } = useAuth()
     const [rowData, setRowData] = useState([])
     const [isLoading, setIsLoading] = useState(true)
@@ -26,13 +28,10 @@ const ApplicationsGrid = (props) => {
                     })
                     
                     if (!response.ok) {
-                        console.log("[ApplicationsGrid] - Network response was not ok")
-                        toast.error('HTTP Error: Network response was NOT ok!')
-                        throw new Error('Network response was not ok')
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
     
                     const applicationsData = await response.json()
-                    //console.log(applicationsData)
                     setRowData(applicationsData)
                     toast.success('Applications loaded successfully!')
                 } else {
@@ -41,7 +40,8 @@ const ApplicationsGrid = (props) => {
                 }
                 
             } catch(error) {
-                console.log(error)
+                console.log('[Applications Grid]:- ' + error.message)
+                toast.error('[Applications Grid]:- ' + error.message)
             } finally {
                 setIsLoading(false)
             }

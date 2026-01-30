@@ -9,6 +9,7 @@ import com.pjdereva.minto.membership.payload.response.AuthenticationResponse;
 import com.pjdereva.minto.membership.payload.request.RegisterRequest;
 import com.pjdereva.minto.membership.dto.UserUpdateDto;
 import com.pjdereva.minto.membership.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
