@@ -441,6 +441,15 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
+    public List<ApplicationDTO> findAllByUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Application> applications = applicationRepository.findAllByUser(user);
+        return applicationMapper.toApplicationDTOs(applications);
+    }
+
+    @Override
     public List<Application> findAllByApplicationStatus(ApplicationStatus applicationStatus) {
         return applicationRepository.findAllByApplicationStatus(applicationStatus);
     }

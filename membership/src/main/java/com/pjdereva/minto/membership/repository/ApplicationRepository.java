@@ -1,6 +1,7 @@
 package com.pjdereva.minto.membership.repository;
 
 import com.pjdereva.minto.membership.model.Person;
+import com.pjdereva.minto.membership.model.User;
 import com.pjdereva.minto.membership.model.transaction.Application;
 import com.pjdereva.minto.membership.model.transaction.ApplicationStatus;
 import com.pjdereva.minto.membership.model.transaction.MaritalStatus;
@@ -18,6 +19,8 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Application a WHERE a.person.id = :personId")
     boolean applicationExistsByPersonId(@Param("personId") Long personId);
+
+    List<Application> findAllByUser(User user);
 
     List<Application> findAllByApplicationStatus(ApplicationStatus applicationStatus);
 

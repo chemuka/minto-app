@@ -19,6 +19,7 @@ public interface ApplicationService {
     Optional<Application> createApplication(Application application);
     Application saveApplication(Application application);
     List<Application> getAllApplications();
+    List<ApplicationDTO> findAllByUser(Long userId);
     List<Application> findAllByApplicationStatus(ApplicationStatus applicationStatus);
     List<Application> findAllByApplicationStatusIn(List<ApplicationStatus> applicationStatuses);
     Optional<Application> findById(Long id);

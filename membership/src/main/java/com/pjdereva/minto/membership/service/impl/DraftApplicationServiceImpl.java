@@ -39,6 +39,9 @@ public class DraftApplicationServiceImpl implements DraftApplicationService {
     private final RefereeMapper refereeMapper;
     private final RelativeMapper relativeMapper;
     private final BeneficiaryMapper beneficiaryMapper;
+    private final AddressMapper addressMapper;
+    private final EmailMapper emailMapper;
+    private final PhoneMapper phoneMapper;
 
     /**
      * Save or update application draft
@@ -122,8 +125,16 @@ public class DraftApplicationServiceImpl implements DraftApplicationService {
                 .findByUserIdAndApplicationStatus(userId, ApplicationStatus.DRAFT);
 
         if (draftOpt.isEmpty()) {
+            Application newApp = Application.builder()
+                    .applicationNumber(generateApplicationNumber())
+                    .applicationStatus(ApplicationStatus.DRAFT)
+                    .notes("Created by user: " + user.getEmail())
+                    .build();
+            newApp.setUser(user);
+            newApp.setPerson(user.getPerson());
+            return applicationMapper.toApplicationDTO(newApp);
             // Return empty draft
-            return new ApplicationDTO();
+            //return new ApplicationDTO();
         }
 
         /*
@@ -808,11 +819,18 @@ public class DraftApplicationServiceImpl implements DraftApplicationService {
             // Update phone
             updateContactPhones(contact, data.getContact().getPhones());
         } else {
+            // TODO: Remove any existing addresses
+            person.setContact(null);
             log.debug("PersonDTO({} {}) -> Contact is NULL", data.getFirstName(), data.getLastName());
         }
     }
     private void updateContactAddresses(Contact contact, List<AddressDTO> addressDTOS) {
         if (!(addressDTOS.isEmpty())) {
+            Set<Address> updatedAddressSet = Set.copyOf(addressMapper.toAddressList(addressDTOS));
+            Set<Address> addressesToRemove = new HashSet<>(contact.getAddresses());
+            addressesToRemove.removeAll(updatedAddressSet);
+            addressesToRemove.forEach(contact::removeAddress);
+
             addressDTOS.forEach(addressDTO -> {
                 if (addressDTO.getId() == null) {
                     Address address = Address.builder()
@@ -838,6 +856,9 @@ public class DraftApplicationServiceImpl implements DraftApplicationService {
                     existingAddress.setContact(contact);
                 }
             });
+        } else {
+            //contact.setAddresses(null);
+            contact.getAddresses().clear();
         }
         //contact.setAddresses(addressDTOS);
     }
@@ -846,6 +867,34 @@ public class DraftApplicationServiceImpl implements DraftApplicationService {
      * Update contact email - prevents duplicate email records
      */
     private void updateContactEmails(Contact contact, List<EmailDTO> emailDTOS) {
+        if(emailDTOS.isEmpty()) {
+            contact.getEmails().clear();
+        } else {
+            Set<Email> updatedEmailSet = Set.copyOf(emailMapper.toEmailList(emailDTOS));
+            Set<Email> emailsToRemove = new HashSet<>(contact.getEmails());
+            emailsToRemove.removeAll(updatedEmailSet);
+            emailsToRemove.forEach(contact::removeEmail);
+
+            updatedEmailSet.forEach(emailDTO -> {
+                if (emailDTO.getId() == null) {
+                    Email email = Email.builder()
+                            .emailType(emailDTO.getEmailType())
+                            .address(emailDTO.getAddress())
+                            .contact(contact)
+                            .build();
+                    contact.addEmail(email);
+                } else {
+                    Email existingEmail = emailRepository.findById(emailDTO.getId())
+                            .orElseThrow(() -> new EntityNotFoundException("Email with Id: " + emailDTO.getId() + " not found"));
+
+                    existingEmail.setEmailType(emailDTO.getEmailType());
+                    existingEmail.setAddress(emailDTO.getAddress());
+                    existingEmail.setContact(contact);
+                }
+            });
+
+        }
+        /*
         if (!(emailDTOS.isEmpty())) {
             emailDTOS.forEach(emailDTO -> {
                 if (emailDTO.getId() == null) {
@@ -864,7 +913,10 @@ public class DraftApplicationServiceImpl implements DraftApplicationService {
                     existingEmail.setContact(contact);
                 }
             });
+        } else {
+            contact.getEmails().clear();
         }
+        */
     }
 
     /**
@@ -872,6 +924,11 @@ public class DraftApplicationServiceImpl implements DraftApplicationService {
      */
     private void updateContactPhones(Contact contact, List<PhoneDTO> phoneDTOS) {
         if (!(phoneDTOS.isEmpty())) {
+            Set<Phone> updatedPhoneSet = Set.copyOf(phoneMapper.toPhoneList(phoneDTOS));
+            Set<Phone> phonesToRemove = new HashSet<>(contact.getPhones());
+            phonesToRemove.removeAll(updatedPhoneSet);
+            phonesToRemove.forEach(contact::removePhone);
+
             phoneDTOS.forEach(phoneDTO -> {
                 if (phoneDTO.getId() == null) {
                     Phone phone = Phone.builder()
@@ -891,6 +948,8 @@ public class DraftApplicationServiceImpl implements DraftApplicationService {
                     existingPhone.setContact(contact);
                 }
             });
+        } else {
+            contact.getPhones().clear();
         }
     }
 

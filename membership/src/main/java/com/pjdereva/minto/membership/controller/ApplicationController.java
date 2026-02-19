@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -54,6 +53,18 @@ public class ApplicationController {
         var application = applicationService.findById(id);
         return application.map(value -> new ResponseEntity<>(applicationMapper.toApplicationDTO(value), HttpStatus.OK))
                 .orElseThrow(() -> new ApplicationIdNotFoundException(id));
+    }
+
+    @GetMapping("/dto/user")
+    public ResponseEntity<List<ApplicationDTO>> findAllDTOsByUser(
+            Principal currentUser) {
+
+        var user = (User) ((UsernamePasswordAuthenticationToken) currentUser).getPrincipal();
+
+        log.info("Finding all applications for user: {} {}", user.getFirstName(), user.getLastName());
+
+        List<ApplicationDTO> applications = applicationService.findAllByUser(user.getId());
+        return ResponseEntity.ok(applications);
     }
 
     // TODO: Fix repository SQL

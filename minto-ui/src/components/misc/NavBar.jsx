@@ -89,8 +89,13 @@ const NavBar = () => {
                             )
                         }
                         {
-                            isAuthenticated && (isAdmin || isStaff || isMember) && (
+                            isAuthenticated && (isAdmin || isMember) && (
                                 <Link className="nav-link" to="/member-profile">Profile</Link>
+                            )
+                        }
+                        {
+                            isAuthenticated && isStaff && (
+                                <Link className="nav-link" to="/staff-profile">Profile</Link>
                             )
                         }
                         {

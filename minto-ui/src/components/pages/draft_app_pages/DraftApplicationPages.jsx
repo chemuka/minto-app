@@ -7,7 +7,7 @@ const DraftApplicationPage = () => {
         <>
             <div className="container mt-5 pt-2">
                 <Suspense fallback={<LoadingSpinner caption={'Applications'} clsTextColor={"text-primary"} />}>
-                    <DraftApplication title={'Draft Application'} headerBgColor={'bg-primary'} cardBorderColor={'border-primary'} />
+                    <DraftApplication title={'My Application'} headerBgColor={'bg-primary'} cardBorderColor={'border-primary'} />
                 </Suspense>
             </div>
         </>

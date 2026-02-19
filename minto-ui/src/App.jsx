@@ -37,6 +37,7 @@ import PeoplePage from "./components/pages/person_pages/PeoplePage";
 import { useAuth } from "./components/hooks/useAuth";
 import AuthPage from "./components/pages/AuthPage";
 import DraftApplicationPage from "./components/pages/draft_app_pages/DraftApplicationPages";
+import StaffProfile from "./components/pages/profile/StaffProfile";
 
 const App = () => {
   const { isAuthenticated } = useAuth()
@@ -62,6 +63,7 @@ const App = () => {
             <Route path="/profile" element={<Profile />} />
             <Route path="/user-profile" element={<UserProfile />} />
             <Route path="/member-profile" element={<MemberProfile />} />
+            <Route path="/staff-profile" element={<StaffProfile />} />
 
             <Route path="/view-all-users" element={<ViewAllUsersPage />} />
             <Route path="/view-user" element={<EditUserPage />} />

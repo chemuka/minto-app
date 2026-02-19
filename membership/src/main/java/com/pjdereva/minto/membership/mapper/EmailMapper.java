@@ -16,6 +16,7 @@ public interface EmailMapper {
     EmailDTO toEmailDTO(Email email);
 
     List<EmailDTO> toEmailDTOs(List<Email> emails);
+    List<Email> toEmailList(List<EmailDTO> emailDTOList);
     Set<EmailDTO> emailSetToEmailDTOSet(Set<Email> emails);
     Set<Email> emailDTOSetToEmailSet(Set<EmailDTO> emailDTOS);
 

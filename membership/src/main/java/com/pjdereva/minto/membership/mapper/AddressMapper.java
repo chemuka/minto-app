@@ -16,6 +16,7 @@ public interface AddressMapper {
     AddressDTO toAddressDTO(Address address);
 
     List<AddressDTO> toAddressDTOs(List<Address> addresses);
+    List<Address> toAddressList(List<AddressDTO> addressDTOList);
     Set<AddressDTO> addressSetToAddressDTOSet(Set<Address> addresses);
     Set<Address> addressDTOSetToAddressSet(Set<AddressDTO> addressDTOS);
 

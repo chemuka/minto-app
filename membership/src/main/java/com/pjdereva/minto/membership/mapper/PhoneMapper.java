@@ -19,6 +19,7 @@ public interface PhoneMapper {
     PhoneDTO toPhoneDTO(Phone phone);
 
     List<PhoneDTO> toPhoneDTOs(List<Phone> phone);
+    List<Phone> toPhoneList(List<PhoneDTO> phoneDTOList);
     Set<EmailDTO> phoneSetToPhoneDTOSet(Set<Phone> phones);
     Set<Phone> phoneDTOSetToPhoneSet(Set<PhoneDTO> phoneDTOS);
 
