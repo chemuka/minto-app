@@ -7,8 +7,6 @@ public record AddUserDTO(
         String password,
         String role,
         String source,
-        String imageName,
-        String imageType,
-        byte[] imageData
+        String picture
 ) {
 }

@@ -7,6 +7,7 @@ import { Search } from "react-bootstrap-icons"
 //import { useNavigate } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth"
 import useFetch from "../hooks/useFetch"
+import { defaultUser } from "../../model/defaultUser"
 
 const EditUser = () => {
     //const navigate = useNavigate()
@@ -17,18 +18,8 @@ const EditUser = () => {
     const [message, setMessage] = useState('')
     const [loading, setLoading] = useState(false)
     const [isAdminOrStaff, setIsAdminOrStaff] = useState(false);
-    const [formData, setFormData] = useState(
-        {
-            firstName: "",
-            lastName: "",
-            email: "",
-            password: "",
-            role: "",
-            imageName: "",
-            imageType: "",
-            imageData: []
-        }
-    )
+    const [formData, setFormData] = useState({ ...defaultUser })
+    const [image, setImage] = useState(null)
 
     let user = getUser()
 
@@ -67,6 +58,10 @@ const EditUser = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handleImageChange = (e) => {
+        setImage(e.target.files[0])
+    }
+
     const handlePasswordChange = (newPassword) => {
         setFormData({ ...formData, password: newPassword });
     };
@@ -76,21 +71,17 @@ const EditUser = () => {
         setLoading(true)
 
         try {
+            const bodyData = new FormData()
+            bodyData.append("imageFile", image)
+            bodyData.append(
+                "updates",
+                new Blob([JSON.stringify(formData)], { type: "application/json" })
+            );
+
             {/*const response = await fetchWithAuth(`http://localhost:8080/api/v1/users/secure/${formData.email}`, { */}
             const response = await fetchWithAuth(`http://localhost:8080/api/v1/users/secure`, {
                 method: 'PATCH',
-                credentials: "include",
-                headers: { 
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    firstName: formData.firstName,
-                    lastName: formData.lastName,
-                    email: formData.email,
-                    password: formData.password,
-                    role: formData.role,
-                    picture: formData.picture,
-                }),
+                body: bodyData,
             });
 
             if(!response.ok) {
@@ -141,6 +132,7 @@ const EditUser = () => {
                                         loading={loading} 
                                         formData={formData} 
                                         onInputChange={onInputChange} 
+                                        handleImageChange={handleImageChange}
                                         handlePasswordChange={handlePasswordChange} 
                                         onSubmit={onSubmit}
                                     />

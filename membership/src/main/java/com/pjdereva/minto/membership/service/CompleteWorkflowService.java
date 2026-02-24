@@ -15,7 +15,12 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
 
 /**
@@ -38,7 +43,7 @@ public class CompleteWorkflowService {
     /**
      * COMPLETE WORKFLOW DEMONSTRATION
      */
-    @Transactional
+/*    @Transactional
     public WorkflowResult executeCompleteWorkflow() {
         WorkflowResult result = new WorkflowResult();
 
@@ -163,4 +168,5 @@ public class CompleteWorkflowService {
 
         return result;
     }
+    */
 }

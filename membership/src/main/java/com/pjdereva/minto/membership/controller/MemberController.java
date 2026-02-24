@@ -22,7 +22,7 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin(origins = "${frontend.url}")
 @RequestMapping("/api/v1/members")
 public class MemberController {
 

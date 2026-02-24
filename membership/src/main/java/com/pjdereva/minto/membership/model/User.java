@@ -49,9 +49,14 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    // Picture URL
+    private String picture;
+
+    //Load Profile Picture to DB
     private String imageName;
     private String imageType;
     @Lob
+    @Column(length = 5242880) //5MB
     private byte[] imageData;
 
     @CreatedDate

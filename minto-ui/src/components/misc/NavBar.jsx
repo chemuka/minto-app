@@ -103,7 +103,6 @@ const NavBar = () => {
                                 <Link className="nav-link" to="/admin-dashboard">Dashboard</Link>
                             )
                         }
-                        <Link className="nav-link" to="/profile-page">Profile Page</Link>
                     </Nav>
                     { 
                         isAuthenticated ? (

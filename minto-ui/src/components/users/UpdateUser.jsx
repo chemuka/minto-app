@@ -5,7 +5,7 @@ import { Upload } from 'react-bootstrap-icons';
 import { useAuth } from '../hooks/useAuth';
 
 const UpdateUser = (props) => {
-    const { loading, formData, onInputChange, handlePasswordChange, onSubmit } = props
+    const { loading, formData, onInputChange, handleImageChange, handlePasswordChange, onSubmit } = props
     const { getUser, isAuthenticated } = useAuth()
     let user = getUser()
 
@@ -104,16 +104,14 @@ const UpdateUser = (props) => {
                                         </div>
                                         <div className="form-group row">
                                             <div className="col-sm-10 mb-3">
-                                                <label htmlFor="email" className="form-label text-dark h6">
+                                                <label htmlFor="picture" className="form-label text-dark h6">
                                                     Picture
                                                 </label>
                                                 <input
                                                     type={"file"}
                                                     className="form-control"
-                                                    placeholder="Profile picture"
                                                     name="picture"
-                                                    value={formData.picture}
-                                                    onChange={(e) => onInputChange(e)}
+                                                    onChange={handleImageChange}
                                                 />
                                             </div>
                                         </div>
@@ -144,6 +142,7 @@ UpdateUser.propTypes = {
     loading: PropTypes.bool, 
     formData: PropTypes.object, 
     onInputChange: PropTypes.func, 
+    handleImageChange: PropTypes.func,
     handlePasswordChange: PropTypes.func, 
     onSubmit: PropTypes.func,
 }

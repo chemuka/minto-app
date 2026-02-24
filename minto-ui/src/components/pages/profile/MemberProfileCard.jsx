@@ -4,6 +4,8 @@ import { Buildings, CalendarCheck, CalendarPlus, EnvelopeAt, FolderSymlink, Geo,
     PersonLinesFill, Telephone, HeartPulse, CalendarDate, Lightbulb, CalendarX, Journals, PatchCheck} from 'react-bootstrap-icons'
 import MemberPersonInfoCard from "../../person/components/MemberPersonInfoCard"
 
+const API_BASE_URL = "http://localhost:8080";
+
 const MemberProfileCard = (props) => {
     const { userData, memberData } = props
 
@@ -24,9 +26,9 @@ const MemberProfileCard = (props) => {
                                     <div className="mb-1">
                                         {
                                             userData.picture ? (
-                                                <img src={userData.picture} alt="Profile Picture" style={{ maxWidth: '120px', maxHeight: '120px' }} />
+                                                <img src={`${API_BASE_URL}${userData.picture}`} alt="Profile Picture" style={s.avatar} />
                                             ) : (
-                                                <img src="./images/dashboard/Avatar.PNG" alt="Test Profile Picture" style={{ maxWidth: '120px', maxHeight: '120px' }} />
+                                                <img src="./images/dashboard/Avatar.PNG" alt="Test Profile Picture" style={s.avatar} />
                                             )
                                         }
                                         <span className="h5 ms-2">
@@ -327,3 +329,7 @@ MemberProfileCard.propTypes = {
 }
 
 export default MemberProfileCard
+
+const s = {
+    avatar: { width:'150px', height:'150px', borderRadius:'50%', objectFit:'cover', border:'4px solid #12ab34', boxShadow:'0 4px 20px rgba(102,126,234,0.3)' },
+}

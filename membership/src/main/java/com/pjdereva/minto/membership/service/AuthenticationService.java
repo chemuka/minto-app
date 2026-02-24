@@ -86,7 +86,6 @@ public class AuthenticationService {
         user.setLastName(userUpdateDto.lastName());
         user.setPassword(passwordEncoder.encode(userUpdateDto.password()));
         user.setRole(Role.valueOf(userUpdateDto.role()));
-        user.setPicture(userUpdateDto.picture());
         user.setUpdatedAt(LocalDateTime.now());
         user.setPerson(person);
 

@@ -173,7 +173,7 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
             var jwtToken = jwtService.generateToken(savedUser);
             var refreshToken = jwtService.generateRefreshToken(savedUser);
             tokenService.revokeAllUserTokens(savedUser);
-            tokenService.saveUserToken(savedUser, jwtToken);
+            tokenService.saveUserToken(savedUser, refreshToken);
             authResponse = AuthenticationResponse.builder()
                     .accessToken(jwtToken)
                     .refreshToken(refreshToken)

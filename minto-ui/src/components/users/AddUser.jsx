@@ -7,18 +7,7 @@ import ConfirmationModal from "../misc/modals/ConfirmationModal";
 import useConfirmation from "../hooks/useConfirmation";
 import { useAuth } from "../hooks/useAuth";
 import useFetch from "../hooks/useFetch";
-
-const DEFAULT_USER = {
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    role: '',
-    source: 'DASHBOARD',
-    imageName: '',
-    imageType: '',
-    imageData: []
-}
+import { defaultUser } from "../../model/defaultUser";
 
 const AddUser = () => {
     const { show, confirmMsg, showConfirmation, handleConfirm, handleCancel } = useConfirmation()
@@ -27,7 +16,8 @@ const AddUser = () => {
     const [message, setMessage] = useState('')
     const [loading, setLoading] = useState(false)
     const [isAdminOrStaff, setIsAdminOrStaff] = useState(false)
-    const [formData, setFormData] = useState(DEFAULT_USER)
+    const [formData, setFormData] = useState({ ...defaultUser, source: 'DASHBOARD' })
+    const [image, setImage] = useState(null)
     let user = getUser()
 
     useEffect(() => {
@@ -54,6 +44,10 @@ const AddUser = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     }
 
+    const handleImageChange = (e) => {
+        setImage(e.target.files[0])
+    }
+
     const handlePasswordChange = (newPassword) => {
         setFormData({ ...formData, password: newPassword });
     }
@@ -65,21 +59,16 @@ const AddUser = () => {
 
         try {
             if(isAuthenticated) {
+                const bodyData = new FormData();
+                bodyData.append("imageFile", image)
+                bodyData.append(
+                    "addUserDTO",
+                    new Blob([JSON.stringify(formData)], { type: "application/json" })
+                );
+
                 const response = await fetchWithAuth('http://localhost:8080/api/v1/users/secure', {
                     method: 'POST',
-                    credentials: "include",
-                    headers: { 
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        firstName: formData.firstName,
-                        lastName: formData.lastName,
-                        email: formData.email,
-                        password: formData.password,
-                        role: formData.role,
-                        source: formData.source,
-                        picture: formData.picture
-                    }),
+                    body: bodyData,
                 })
 
                 if(!response.ok) {
@@ -228,10 +217,8 @@ const AddUser = () => {
                                         <input
                                             type={"file"}
                                             className="form-control"
-                                            placeholder="Profile picture"
                                             name="picture"
-                                            value={formData.picture}
-                                            onChange={(e) => onInputChange(e)}
+                                            onChange={handleImageChange}
                                         />
                                     </div>
                                 </div>

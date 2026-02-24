@@ -34,6 +34,7 @@ public class SecurityConfiguration {
             "/api/v1/auth/refresh-token",
             "/api/v1/auth/roles",   
             "/api/v1/demo/greetings",
+            "/api/v1/uploads/**",
             "/login/oauth2/**"
     };
 

@@ -1,13 +1,16 @@
 package com.pjdereva.minto.membership.controller;
 
 import com.pjdereva.minto.membership.dto.*;
+import com.pjdereva.minto.membership.model.User;
 import com.pjdereva.minto.membership.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +19,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin(origins = "${frontend.url}")
 public class UserController {
 
     private final UserService userService;
@@ -51,6 +54,20 @@ public class UserController {
         return ResponseEntity.ok(userInfoDTO);
     }
 
+    @GetMapping("/secure/{email}/image")
+    public ResponseEntity<byte[]> getImageByEmail(@PathVariable String email) {
+        try {
+            var optionalUser = userService.findByEmail(email);
+            if (optionalUser.isPresent()) {
+                User user = optionalUser.get();
+                return ResponseEntity.ok().contentType(MediaType.valueOf(user.getImageType())).body(user.getImageData());
+            }
+            return new ResponseEntity<>("".getBytes(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>("".getBytes(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/secure")
     public ResponseEntity<?> createGuestUser(@RequestPart AddUserDTO addUserDTO,
                                              @RequestPart MultipartFile imageFile) {
@@ -70,19 +87,23 @@ public class UserController {
             var userDto = userService.updateUser(userUpdateDto, imageFile);
             return new ResponseEntity<>(userDto, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PatchMapping("/secure")
     public ResponseEntity<?> patchUser(@RequestPart Map<String, Object> updates,
                                         @RequestPart MultipartFile imageFile) {
-        UserDto updatedUser = userService.patchUser(updates, imageFile);
-        if (updatedUser != null) {
-            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-        } else {
-            return ResponseEntity.badRequest()
-                    .body("Error: Something went wrong while updating user with email address: " + email);
+        try {
+            UserDto updatedUser = userService.patchUser(updates, imageFile);
+            if (updatedUser != null) {
+                return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+            } else {
+                return ResponseEntity.badRequest()
+                        .body("Error: Something went wrong while updating user.");
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -98,16 +119,16 @@ public class UserController {
     }
 
     @PostMapping("/secure/admin")
-    public ResponseEntity<UserDto> createAdminUser(@RequestBody AddUserDTO addUserDTO) {
-        var userDto = userService.createAdminUser(addUserDTO.firstName(), addUserDTO.lastName(),
-                addUserDTO.email(), addUserDTO.password());
+    public ResponseEntity<UserDto> createAdminUser(@RequestBody AddUserDTO addUserDTO,
+                                                   @RequestParam("file") MultipartFile file) throws IOException {
+        var userDto = userService.createAdminUser(addUserDTO, file);
         return ResponseEntity.ok(userDto);
     }
 
     @PostMapping("/secure/staff")
-    public ResponseEntity<UserDto> createStaffUser(@RequestBody AddUserDTO addUserDTO) {
-        var userDto = userService.createStaffUser(addUserDTO.firstName(), addUserDTO.lastName(),
-                addUserDTO.email(), addUserDTO.password());
+    public ResponseEntity<UserDto> createStaffUser(@RequestBody AddUserDTO addUserDTO,
+                                                   @RequestParam("file") MultipartFile file) throws IOException {
+        var userDto = userService.createStaffUser(addUserDTO, file);
         return ResponseEntity.ok(userDto);
     }
 

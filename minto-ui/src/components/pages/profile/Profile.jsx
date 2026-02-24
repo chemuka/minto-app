@@ -12,6 +12,10 @@ const Profile = () => {
     const [profileData, setProfileData] = useState({ ...defaultUser })
     const [userApplications, setUserApplications] = useState([])
     const [isLoading, setIsLoading] = useState(false)
+    const [editing, setEditing] = useState(false);
+    const [form, setForm] = useState({ firstName: '', lastName: '' });
+    const [saving, setSaving] = useState(false);
+    const [message, setMessage] = useState('');
     let user = getUser()
 
     useEffect(() => {
@@ -19,7 +23,7 @@ const Profile = () => {
             setIsLoading(true)
             try {
                 if(user) {
-                    const response1 = await fetchWithAuth(`http://localhost:8080/api/v1/users/${user.decoded.sub}`, {
+                    const response1 = await fetchWithAuth(`http://localhost:8080/api/v1/profile`, {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
@@ -30,25 +34,14 @@ const Profile = () => {
                         toast.error('HTTP Error: Network response not OK!')
                         throw new Error('Network response was not ok!')
                     }
-                    const data = await response1.json()
-                    //console.log('user fetched successfully:', data)
-                    setProfileData(data);
-                    toast.success('Profile data loaded successfully!')
-
-                    const response2 = await fetchWithAuth(`http://localhost:8080/api/v1/applications/dto/user`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    })
                     
-                    if (!response2.ok) {
-                        toast.error('HTTP Error: Network response not OK!')
-                        throw new Error('Network response was not ok!')
-                    }
-                    const data2 = await response2.json()
-                    //console.log('Applications fetched successfully:', data2)
-                    setUserApplications(data2);
+                    const data = await response1.json()
+                    setProfileData(data);
+                    setForm({ firstName: data.firstName || '', lastName: data.lastName || '' })
+                    toast.success('User data loaded successfully!')
+
+                    fetchApplications()
+
                     toast.success('Profile data loaded successfully!')
                 } else {
                     console.log('User NOT authenticated. Please login.')
@@ -61,12 +54,68 @@ const Profile = () => {
                 setIsLoading(false)
             }
         }
+
+        const fetchApplications = async () => {
+            const response = await fetchWithAuth(`http://localhost:8080/api/v1/applications/dto/user`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            
+            if (!response.ok) {
+                toast.error('HTTP Error: Network response not OK!')
+                throw new Error('Network response was not ok!')
+            }
+            const data = await response.json()
+            //console.log('Applications fetched successfully:', data)
+            setUserApplications(data);
+        }
+
         fetchData()
         
         return () => {
             console.log("Cleaned up after fetchData in Profile!");
           }
     }, [user, fetchWithAuth])
+
+    const handleSave = async () => {
+        setSaving(true);
+        try {
+            //const res = await profileAPI.updateProfile(form);
+            const response = await fetchWithAuth('http://localhost:8080/api/v1/profile', {
+                method: 'PUT',
+                credentials: "include",
+                headers: { 
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(form),
+            })
+
+            if (!response.ok) {
+                toast.error('HTTP Error: Network response not OK!')
+                throw new Error('Network response was not ok!')
+            }
+            const data = await response.json()
+            setProfileData(data);
+            //updateUser({ ...user, fullName: res.data.fullName });
+            setEditing(false);
+            showMessage('Profile updated!');
+        } catch (err) {
+            showMessage('Failed to update profile.');
+        } finally { setSaving(false); }
+    };
+
+    const handlePictureUpload = (updatedProfile) => {
+        setProfileData(updatedProfile);
+        //updateUser({ ...user, profilePictureUrl: updatedProfile.profilePictureUrl });
+        showMessage('Profile picture updated!');
+    };
+
+    const showMessage = (msg) => {
+        setMessage(msg);
+        setTimeout(() => setMessage(''), 3000);
+    };
 
     return (
         <>
@@ -77,7 +126,17 @@ const Profile = () => {
                     ) : (
                         isAuthenticated && (
                             <div className="container mt-5 mb-3 pt-4">
-                                <ProfileCard profileData={profileData} />
+                                <ProfileCard 
+                                    profileData={profileData}
+                                    message={message}
+                                    handlePictureUpload={handlePictureUpload}
+                                    form={form}
+                                    setForm={setForm}
+                                    editing={editing}
+                                    setEditing={setEditing}
+                                    saving={saving}
+                                    handleSave={handleSave}
+                                />
 
                                 { userApplications.length > 0 ? (
                                     <div className="my-4">

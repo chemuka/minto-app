@@ -1,7 +1,12 @@
 import { useState, useRef } from 'react';
-//import { profileAPI } from '../services/api';
+import PropTypes from 'prop-types'
+import useFetch from '../../hooks/useFetch';
 
-export default function ProfilePictureUpload({ currentPicture, onUploadSuccess }) {
+const API_BASE_URL = "http://localhost:8080";
+
+const ProfilePictureUpload = (props) => {
+    const { currentPicture, onUploadSuccess } = props;
+    const { fetchWithAuth } = useFetch();
     const [preview, setPreview] = useState(null);
     const [selectedFile, setSelectedFile] = useState(null);
     const [uploading, setUploading] = useState(false);
@@ -28,11 +33,28 @@ export default function ProfilePictureUpload({ currentPicture, onUploadSuccess }
 
     const handleUpload = async () => {
         if (!selectedFile) return;
+        console.log('selected file found: ', selectedFile.name)
         setUploading(true); setError('');
         try {
             //const res = await profileAPI.uploadPicture(selectedFile);
             //onUploadSuccess(res.data);
-            onUploadSuccess('')
+            const formData = new FormData();
+            formData.append('file', selectedFile, selectedFile.name);
+            console.log('Calling fetch to upload picture')
+            const response = await fetchWithAuth('http://localhost:8080/api/v1/profile/picture', {
+                method: 'POST',
+                body: formData,
+            })
+
+            console.log('Response: ', response)
+            if (!response.ok) {
+                toast.error('HTTP Error: Network response not OK!')
+                throw new Error('Network response was not ok!')
+            }
+            
+            const data = await response.json()
+            console.log('GetUserData: ', data)
+            onUploadSuccess(data)
             setPreview(null);
             setSelectedFile(null);
         } catch (err) {
@@ -42,7 +64,8 @@ export default function ProfilePictureUpload({ currentPicture, onUploadSuccess }
 
     const cancel = () => { setPreview(null); setSelectedFile(null); setError(''); };
 
-    const displayPicture = preview || currentPicture;
+    const currentProfilePic = currentPicture ? `${API_BASE_URL}${currentPicture}` : '';
+    const displayPicture = preview || currentProfilePic;
 
     return (
         <div style={s.wrapper}>
@@ -93,6 +116,13 @@ export default function ProfilePictureUpload({ currentPicture, onUploadSuccess }
         </div>
     );
 }
+
+ProfilePictureUpload.propTypes = {
+    currentPicture: PropTypes.any,
+    onUploadSuccess: PropTypes.func,
+}
+
+export default ProfilePictureUpload
 
 const s = {
     wrapper: { display:'flex', flexDirection:'column', alignItems:'center', gap:'20px' },
