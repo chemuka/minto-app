@@ -4,7 +4,7 @@ import countriesData from '../../../assets/data/countries.json';
 import { useEffect, useState } from "react";
 
 const Phones = (props) => {
-    const { formData, updateContact, addContact, removeContact, formErrors, setFormErrors } = props;
+    const { formData, updateContact, addContact, removeContact, formErrors } = props;
     const [errors, setErrors] = useState([])
 
     useEffect(() => {
@@ -128,8 +128,8 @@ const Phones = (props) => {
                                     </select>
                                     <label htmlFor={`phone-type-${index}`}>Type*</label>
                                 </div>
-                                { errors[index]?.phoneType && (
-                                    <div className="text-danger mt-1">{errors[index].phoneType}</div>
+                                { formErrors.person.contact.phones[index]?.phoneType && (
+                                    <div className="text-danger mt-1">{formErrors.person.contact.phones[index].phoneType}</div>
                                 )}
                             </div>
                         </div>
@@ -154,8 +154,8 @@ const Phones = (props) => {
                                     </select>
                                     <label htmlFor={`phone-country-code-${index}`}>Country Code*</label>
                                 </div>
-                                { errors[index]?.countryCode && (
-                                    <div className="text-danger mt-1">{errors[index].countryCode}</div>
+                                { formErrors.person.contact.phones[index]?.countryCode && (
+                                    <div className="text-danger mt-1">{formErrors.person.contact.phones[index].countryCode}</div>
                                 )}
                             </div>
                             <div className="col-sm-6 mb-3">
@@ -172,8 +172,8 @@ const Phones = (props) => {
                                     />
                                     <label htmlFor={`phone-number-${index}`}>Phone Number*</label>
                                 </div>
-                                { errors[index]?.number && (
-                                    <div className="text-danger mt-1">{errors[index].number}</div>
+                                { formErrors.person.contact.phones[index]?.number && (
+                                    <div className="text-danger mt-1">{formErrors.person.contact.phones[index].number}</div>
                                 )}
                             </div>
                             {formData.person.contact.phones.length >= 1 && (
@@ -201,42 +201,39 @@ Phones.propTypes = {
     updateContact: PropTypes.func,
     addContact: PropTypes.func,
     removeContact: PropTypes.func,
-    setFormErrors: PropTypes.func,
     formErrors: PropTypes.shape({
-        formData: PropTypes.shape({
-            person: PropTypes.shape({
-                firstName: PropTypes.string,
-                middleName: PropTypes.string,
-                lastName: PropTypes.string,
-                dob: PropTypes.string,
-                lifeStatus: PropTypes.string,
-                maritalStatus: PropTypes.string,
-                applicationStatus: PropTypes.string,
-                contact: PropTypes.shape({
-                    addresses: PropTypes.arrayOf(
-                        PropTypes.shape({
-                            addressType: PropTypes.string,
-                            street: PropTypes.string,
-                            city: PropTypes.string,
-                            state: PropTypes.string,
-                            zipcode: PropTypes.string,
-                            country: PropTypes.string,
-                        })
-                    ),
-                    emails: PropTypes.arrayOf(
-                        PropTypes.shape({
-                            emailType: PropTypes.string,
-                            address: PropTypes.string,
-                        })
-                    ),
-                    phones: PropTypes.arrayOf(
-                        PropTypes.shape({
-                            phoneType: PropTypes.string,
-                            countryCode: PropTypes.string,
-                            number: PropTypes.string,
-                        })
-                    ),
-                }),
+        person: PropTypes.shape({
+            firstName: PropTypes.string,
+            middleName: PropTypes.string,
+            lastName: PropTypes.string,
+            dob: PropTypes.string,
+            lifeStatus: PropTypes.string,
+            maritalStatus: PropTypes.string,
+            applicationStatus: PropTypes.string,
+            contact: PropTypes.shape({
+                addresses: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        addressType: PropTypes.string,
+                        street: PropTypes.string,
+                        city: PropTypes.string,
+                        state: PropTypes.string,
+                        zipcode: PropTypes.string,
+                        country: PropTypes.string,
+                    })
+                ),
+                emails: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        emailType: PropTypes.string,
+                        address: PropTypes.string,
+                    })
+                ),
+                phones: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        phoneType: PropTypes.string,
+                        countryCode: PropTypes.string,
+                        number: PropTypes.string,
+                    })
+                ),
             }),
         }),
     }),

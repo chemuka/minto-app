@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import ContactDetails from './ContactDetails';
 
 const PersonForm = (props) => {
-    const { entry, arrayName, index, title, removePersonFromArray, updatePersonInArray, addContactForPerson, updateContactForPerson, removeContactForPerson } = props;
+    const { entry, arrayName, index, title, removePersonFromArray, updatePersonInArray, addContactForPerson, 
+        updateContactForPerson, removeContactForPerson, formErrors } = props;
     let person = {};
     let extraFields = {};
     
@@ -42,6 +43,8 @@ const PersonForm = (props) => {
         person = entry.person;
     }
 
+    console.log('Person Form size: ', formErrors[arrayName].length)
+
     return (
         <>
             <div key={index} className="card mb-2 shadow">
@@ -70,6 +73,7 @@ const PersonForm = (props) => {
                                 />
                                 <label htmlFor={`${arrayName}-${index}-firstName`}>First Name*</label>
                             </div>
+                            { formErrors[arrayName].length > 0 && formErrors[arrayName][index].person.firstName && <div className="text-danger mt-1">{ formErrors[arrayName][index].person.firstName}</div>}
                         </div>
                         <div className="col-sm-6 mb-3">
                             <div className="form-floating">
@@ -83,6 +87,7 @@ const PersonForm = (props) => {
                                 />
                                 <label htmlFor={`${arrayName}-${index}-middleName`}>Middle Name</label>
                             </div>
+                            { formErrors[arrayName].length > 0 && formErrors[arrayName][index].person.middleName && <div className="text-danger mt-1">{ formErrors[arrayName][index].person.middleName}</div>}
                         </div>
                     </div>
                     <div className="form-group row">
@@ -98,6 +103,7 @@ const PersonForm = (props) => {
                                 />
                                 <label htmlFor={`${arrayName}-${index}-lastName`}>Last Name*</label>
                             </div>
+                            { formErrors[arrayName].length > 0 && formErrors[arrayName][index].person.lastName && <div className="text-danger mt-1">{ formErrors[arrayName][index].person.lastName}</div>}
                         </div>
                         <div className="col-sm-6 mb-3">
                             <div className="form-floating">
@@ -110,6 +116,7 @@ const PersonForm = (props) => {
                                 />
                                 <label htmlFor={`${arrayName}-${index}-dob`}>Date Of Birth</label>
                             </div>
+                            { formErrors[arrayName].length > 0 && formErrors[arrayName][index].person.dob && <div className="text-danger mt-1">{ formErrors[arrayName][index].person.dob}</div>}
                         </div>
                     </div>
                     <div className="form-group row">
@@ -127,6 +134,7 @@ const PersonForm = (props) => {
                                 </select>
                                 <label htmlFor={`${arrayName}-${index}-lifeStatus`}>Life Status</label>
                             </div>
+                            { formErrors[arrayName].length > 0 && formErrors[arrayName][index].person.lifeStatus && <div className="text-danger mt-1">{ formErrors[arrayName][index].person.lifeStatus}</div>}
                         </div>
 
                         {arrayName === 'spouses' && (
@@ -148,6 +156,7 @@ const PersonForm = (props) => {
                                     </select>
                                     <label htmlFor={`${arrayName}-${index}-maritalStatus`}>Marital Status</label>
                                 </div>
+                                { formErrors[arrayName].length > 0 && formErrors[arrayName][index].maritalStatus && <div className="text-danger mt-1">{ formErrors[arrayName][index].maritalStatus}</div>}
                             </div>
                         )}
 
@@ -168,6 +177,7 @@ const PersonForm = (props) => {
                                     </select>
                                     <label htmlFor={`${arrayName}-${index}-childType`}>Child Type</label>
                                 </div>
+                                { formErrors[arrayName].length > 0 && formErrors[arrayName][index].childType && <div className="text-danger mt-1">{ formErrors[arrayName][index].childType}</div>}
                             </div>
                         )}
                         
@@ -193,6 +203,7 @@ const PersonForm = (props) => {
                                     </select>
                                     <label htmlFor={`${arrayName}-${index}-parentType`}>Parent Type</label>
                                 </div>
+                                { formErrors[arrayName].length > 0 && formErrors[arrayName][index].parentType && <div className="text-danger mt-1">{ formErrors[arrayName][index].parentType}</div>}
                             </div>
                         )}
 
@@ -216,6 +227,7 @@ const PersonForm = (props) => {
                                     </select>
                                     <label htmlFor={`${arrayName}-${index}-siblingType`}>Sibling Type</label>
                                 </div>
+                                { formErrors[arrayName].length > 0 && formErrors[arrayName][index].siblingType && <div className="text-danger mt-1">{ formErrors[arrayName][index].siblingType}</div>}
                             </div>
                         )}
 
@@ -233,6 +245,7 @@ const PersonForm = (props) => {
                                         />
                                         <label htmlFor={`${arrayName}-${index}-membershipNumber`}>Membership Number*</label>
                                     </div>
+                                    { formErrors[arrayName].length > 0 && formErrors[arrayName][index].membershipNumber && <div className="text-danger mt-1">{ formErrors[arrayName][index].membershipNumber}</div>}
                                 </div>
                             </div>
                         )}
@@ -253,6 +266,7 @@ const PersonForm = (props) => {
                                         />
                                         <label htmlFor={`${arrayName}-${index}-membershipNumber`}>Membership Number*</label>
                                     </div>
+                                    { formErrors[arrayName].length > 0 && formErrors[arrayName][index].membershipNumber && <div className="text-danger mt-1">{ formErrors[arrayName][index].membershipNumber}</div>}
                                 </div>
                                 <div className="col-sm-6 mb-3">
                                     <div className="form-floating">
@@ -288,6 +302,7 @@ const PersonForm = (props) => {
                                         </select>
                                         <label htmlFor={`familyRelationship-${index}`}>Family Relationship</label>
                                     </div>
+                                    { formErrors[arrayName].length > 0 && formErrors[arrayName][index].familyRelationship && <div className="text-danger mt-1">{ formErrors[arrayName][index].familyRelationship}</div>}
                                 </div>
                             </>
                         )}
@@ -306,6 +321,7 @@ const PersonForm = (props) => {
                                         />
                                         <label htmlFor={`${arrayName}-${index}-relationship`}>Relationship*</label>
                                     </div>
+                                    { formErrors[arrayName].length > 0 && formErrors[arrayName][index].relationship && <div className="text-danger mt-1">{ formErrors[arrayName][index].relationship}</div>}
                                 </div>
                                 <div className="col-sm-6 mb-3">
                                     <div className="form-floating">
@@ -321,13 +337,22 @@ const PersonForm = (props) => {
                                         />
                                         <label htmlFor={`percentage-${index}`}>Percentage</label>
                                     </div>
+                                    { formErrors[arrayName].length > 0 && formErrors[arrayName][index].percentage && <div className="text-danger mt-1">{ formErrors[arrayName][index].percentage}</div>}
                                 </div>
                             </>
                         )}
                     </div>
                     
                     {/* Contact Details Card */}
-                    <ContactDetails index={index} title={title} arrayName={arrayName} person={person} updateContactForPerson={updateContactForPerson} removeContactForPerson={removeContactForPerson} addContactForPerson={addContactForPerson} />  
+                    <ContactDetails 
+                        index={index} 
+                        title={title} 
+                        arrayName={arrayName} 
+                        person={person} 
+                        updateContactForPerson={updateContactForPerson} 
+                        removeContactForPerson={removeContactForPerson} 
+                        addContactForPerson={addContactForPerson} 
+                    />  
                 </div>
             </div>
         </>
@@ -343,7 +368,114 @@ PersonForm.propTypes = {
     updatePersonInArray: PropTypes.func,
     addContactForPerson: PropTypes.func,
     updateContactForPerson: PropTypes.func,
-    removeContactForPerson: PropTypes.func
+    removeContactForPerson: PropTypes.func,
+    formErrors: PropTypes.shape({
+        maritalStatus: PropTypes.string,
+        applicationStatus: PropTypes.string,
+        person: PropTypes.shape({
+            firstName: PropTypes.string,
+            middleName: PropTypes.string,
+            lastName: PropTypes.string,
+            dob: PropTypes.string,
+            lifeStatus: PropTypes.string,
+            contact: PropTypes.shape({
+                addresses: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        street: PropTypes.string,
+                        city: PropTypes.string,
+                        state: PropTypes.string,
+                        zipcode: PropTypes.string,
+                        country: PropTypes.string,
+                    })
+                ),
+                emails: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        emailType: PropTypes.string,
+                        address: PropTypes.string,
+                    })
+                ),
+                phones: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        phoneType: PropTypes.string,
+                        countryCode: PropTypes.string,
+                        number: PropTypes.string,
+                    })
+                ),
+            }),
+        }),
+        spouses: PropTypes.arrayOf(
+            PropTypes.shape({
+                maritalStatus: PropTypes.string,
+                person: PropTypes.shape({
+                    firstName: PropTypes.string,
+                    middleName: PropTypes.string,
+                    lastName: PropTypes.string,
+                    dob: PropTypes.string,
+                    lifeStatus: PropTypes.string,
+                    contact: PropTypes.shape({
+                        addresses: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                street: PropTypes.string,
+                                city: PropTypes.string,
+                                state: PropTypes.string,
+                                zipcode: PropTypes.string,
+                                country: PropTypes.string,
+                            })
+                        ),
+                        emails: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                emailType: PropTypes.string,
+                                address: PropTypes.string,
+                            })
+                        ),
+                        phones: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                phoneType: PropTypes.string,
+                                countryCode: PropTypes.string,
+                                number: PropTypes.string,
+                            })
+                        ),
+                    }),
+                }),
+            })
+        ),
+        children: PropTypes.arrayOf(
+            PropTypes.shape({
+                childType: PropTypes.string,
+                person: PropTypes.shape({
+                    firstName: PropTypes.string,
+                    middleName: PropTypes.string,
+                    lastName: PropTypes.string,
+                    dob: PropTypes.string,
+                    lifeStatus: PropTypes.string,
+                    contact: PropTypes.shape({
+                        addresses: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                street: PropTypes.string,
+                                city: PropTypes.string,
+                                state: PropTypes.string,
+                                zipcode: PropTypes.string,
+                                country: PropTypes.string,
+                            })
+                        ),
+                        emails: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                emailType: PropTypes.string,
+                                address: PropTypes.string,
+                            })
+                        ),
+                        phones: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                phoneType: PropTypes.string,
+                                countryCode: PropTypes.string,
+                                number: PropTypes.string,
+                            })
+                        ),
+                    }),
+                }),
+            })
+        ),
+    }),
 }
 
 export default PersonForm

@@ -20,7 +20,6 @@ const ProfileCard = (props) => {
                         <div className="col-lg-6 col-xl-4">
                             <div style={s.pictureSection}>
                                 <h2 style={s.sectionTitle}>Profile Picture</h2>
-                                {console.log('ProfileData: ', profileData)}
                                 <ProfilePictureUpload
                                     currentPicture={profileData.picture}
                                     onUploadSuccess={handlePictureUpload}

@@ -2,7 +2,7 @@ import { PersonCircle, Plus } from 'react-bootstrap-icons';
 import PropTypes from 'prop-types';
 
 const ChildrenForm = (props) => {
-    const { formData, addPersonToArray, renderPersonForm } = props;
+    const { formData, addPersonToArray, renderPersonForm, formErrors } = props;
 
     return (
         <>
@@ -33,7 +33,7 @@ const ChildrenForm = (props) => {
                     <p className="text-secondary text-center py-4">No children added yet</p>
                 ) : (
                     formData.children.map((child, index) => 
-                    renderPersonForm(child, 'children', index, 'Child')
+                    renderPersonForm(child, 'children', index, 'Child', formErrors)
                     )
                 )}
             </div>
@@ -45,6 +45,76 @@ ChildrenForm.propTypes = {
     formData: PropTypes.object.isRequired,
     addPersonToArray: PropTypes.func.isRequired,
     renderPersonForm: PropTypes.func.isRequired,
+    formErrors: PropTypes.shape({
+        maritalStatus: PropTypes.string,
+        applicationStatus: PropTypes.string,
+        person: PropTypes.shape({
+            firstName: PropTypes.string,
+            middleName: PropTypes.string,
+            lastName: PropTypes.string,
+            dob: PropTypes.string,
+            lifeStatus: PropTypes.string,
+            contact: PropTypes.shape({
+                addresses: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        street: PropTypes.string,
+                        city: PropTypes.string,
+                        state: PropTypes.string,
+                        zipcode: PropTypes.string,
+                        country: PropTypes.string,
+                    })
+                ),
+                emails: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        emailType: PropTypes.string,
+                        address: PropTypes.string,
+                    })
+                ),
+                phones: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        phoneType: PropTypes.string,
+                        countryCode: PropTypes.string,
+                        number: PropTypes.string,
+                    })
+                ),
+            }),
+        }),
+        children: PropTypes.arrayOf(
+            PropTypes.shape({
+                person: PropTypes.shape({
+                    firstName: PropTypes.string,
+                    middleName: PropTypes.string,
+                    lastName: PropTypes.string,
+                    dob: PropTypes.string,
+                    lifeStatus: PropTypes.string,
+                    contact: PropTypes.shape({
+                        addresses: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                street: PropTypes.string,
+                                city: PropTypes.string,
+                                state: PropTypes.string,
+                                zipcode: PropTypes.string,
+                                country: PropTypes.string,
+                            })
+                        ),
+                        emails: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                emailType: PropTypes.string,
+                                address: PropTypes.string,
+                            })
+                        ),
+                        phones: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                phoneType: PropTypes.string,
+                                countryCode: PropTypes.string,
+                                number: PropTypes.string,
+                            })
+                        ),
+                    }),
+                }),
+            })
+        ),
+    }),
 }
 
 export default ChildrenForm

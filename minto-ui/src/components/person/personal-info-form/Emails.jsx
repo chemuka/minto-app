@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { useState } from "react";
 
 const Emails = (props) => {
-    const { formData, updateContact, addContact, removeContact } = props;
+    const { formData, updateContact, addContact, removeContact, formErrors } = props;
     const [errors, setErrors] = useState([])
 
     const validateEmailField = (index, field) => {
@@ -99,8 +99,8 @@ const Emails = (props) => {
                                     </select>
                                     <label htmlFor={`email-type-${index}`}>Type*</label>
                                 </div>
-                                { errors[index]?.emailType && (
-                                    <div className="text-danger mt-1">{errors[index].emailType}</div>
+                                { formErrors.person.contact.emails[index]?.emailType && (
+                                    <div className="text-danger mt-1">{formErrors.person.contact.emails[index].emailType}</div>
                                 )}
                             </div>
                             <div className="col-sm-6 mb-3">
@@ -117,8 +117,8 @@ const Emails = (props) => {
                                     />
                                     <label htmlFor={`email-address-${index}`}>Email Address*</label>
                                 </div>
-                                { errors[index]?.address && (
-                                    <div className="text-danger mt-1">{errors[index].address}</div>
+                                { formErrors.person.contact.emails[index]?.address && (
+                                    <div className="text-danger mt-1">{formErrors.person.contact.emails[index].address}</div>
                                 )}
                             </div>
                             {formData.person.contact.emails.length >= 1 && (
@@ -146,6 +146,42 @@ Emails.propTypes = {
     updateContact: PropTypes.func,
     addContact: PropTypes.func,
     removeContact: PropTypes.func,
+    formErrors: PropTypes.shape({
+        person: PropTypes.shape({
+            firstName: PropTypes.string,
+            middleName: PropTypes.string,
+            lastName: PropTypes.string,
+            dob: PropTypes.string,
+            lifeStatus: PropTypes.string,
+            maritalStatus: PropTypes.string,
+            applicationStatus: PropTypes.string,
+            contact: PropTypes.shape({
+                addresses: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        addressType: PropTypes.string,
+                        street: PropTypes.string,
+                        city: PropTypes.string,
+                        state: PropTypes.string,
+                        zipcode: PropTypes.string,
+                        country: PropTypes.string,
+                    })
+                ),
+                emails: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        emailType: PropTypes.string,
+                        address: PropTypes.string,
+                    })
+                ),
+                phones: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        phoneType: PropTypes.string,
+                        countryCode: PropTypes.string,
+                        number: PropTypes.string,
+                    })
+                ),
+            }),
+        }),
+    }),
 }
 
 export default Emails

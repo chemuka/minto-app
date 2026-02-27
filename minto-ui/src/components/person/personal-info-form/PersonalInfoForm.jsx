@@ -106,7 +106,7 @@ const PersonalInfoForm = (props) => {
                                 />
                                 <label htmlFor={"firstName"}>First Name*</label>
                             </div>
-                            { errors.firstName && <div className="text-danger mt-1">{errors.firstName}</div>}
+                            { formErrors.person.firstName && <div className="text-danger mt-1">{ formErrors.person.firstName}</div>}
                         </div>
                         <div className="col-sm-4 mb-3">
                             <div className="form-floating">
@@ -122,7 +122,7 @@ const PersonalInfoForm = (props) => {
                                 />
                                 <label htmlFor={"middleName"}>Middle Name</label>
                             </div>
-                            { errors.middleName && <div className="text-danger mt-1">{errors.middleName}</div>}
+                            { formErrors.person.middleName && <div className="text-danger mt-1">{formErrors.person.middleName}</div>}
                         </div>
                         <div className="col-sm-4 mb-3">
                             <div className="form-floating">
@@ -139,7 +139,7 @@ const PersonalInfoForm = (props) => {
                                 />
                                 <label htmlFor={"lastName"}>Last Name*</label>
                             </div>
-                            { errors.lastName && <div className="text-danger mt-1">{errors.lastName}</div>}
+                            { formErrors.person.lastName && <div className="text-danger mt-1">{formErrors.person.lastName}</div>}
                         </div>
                     </div>
                     <div className="form-group row">
@@ -157,7 +157,7 @@ const PersonalInfoForm = (props) => {
                                 />
                                 <label htmlFor={"dob"}>Date Of Birth*</label>
                             </div>
-                            { errors.dob && <div className="text-danger mt-1">{errors.dob}</div>}
+                            { formErrors.person.dob && <div className="text-danger mt-1">{formErrors.person.dob}</div>}
                         </div>
                         <div className="col-sm-6 mb-3">
                             <div className="form-floating">
@@ -176,7 +176,7 @@ const PersonalInfoForm = (props) => {
                                 </select>
                                 <label htmlFor={"lifeStatus"}>Life Status*</label>
                             </div>
-                            { errors.lifeStatus && <div className="text-danger mt-1">{errors.lifeStatus}</div>}
+                            { formErrors.person.lifeStatus && <div className="text-danger mt-1">{formErrors.person.lifeStatus}</div>}
                         </div>
                     </div>
                     <div className="form-group row">
@@ -201,7 +201,7 @@ const PersonalInfoForm = (props) => {
                                 </select>
                                 <label htmlFor={"maritalStatus"}>Marital Status*</label>
                             </div>
-                            { errors.maritalStatus && <div className="text-danger mt-1">{errors.maritalStatus}</div>}
+                            { formErrors.maritalStatus && <div className="text-danger mt-1">{formErrors.maritalStatus}</div>}
                         </div>
                         <div className="col-sm-6 mb-3">
                             <div className="form-floating">
@@ -250,39 +250,37 @@ PersonalInfoForm.propTypes = {
     removeContact: PropTypes.func,
     setFormErrors: PropTypes.func,
     formErrors: PropTypes.shape({
-        formData: PropTypes.shape({
-            person: PropTypes.shape({
-                firstName: PropTypes.string,
-                middleName: PropTypes.string,
-                lastName: PropTypes.string,
-                dob: PropTypes.string,
-                lifeStatus: PropTypes.string,
-                maritalStatus: PropTypes.string,
-                applicationStatus: PropTypes.string,
-                contact: PropTypes.shape({
-                    addresses: PropTypes.arrayOf(
-                        PropTypes.shape({
-                            street: PropTypes.string,
-                            city: PropTypes.string,
-                            state: PropTypes.string,
-                            zipcode: PropTypes.string,
-                            country: PropTypes.string,
-                        })
-                    ),
-                    emails: PropTypes.arrayOf(
-                        PropTypes.shape({
-                            emailType: PropTypes.string,
-                            address: PropTypes.string,
-                        })
-                    ),
-                    phones: PropTypes.arrayOf(
-                        PropTypes.shape({
-                            phoneType: PropTypes.string,
-                            countryCode: PropTypes.string,
-                            number: PropTypes.string,
-                        })
-                    ),
-                }),
+        maritalStatus: PropTypes.string,
+        applicationStatus: PropTypes.string,
+        person: PropTypes.shape({
+            firstName: PropTypes.string,
+            middleName: PropTypes.string,
+            lastName: PropTypes.string,
+            dob: PropTypes.string,
+            lifeStatus: PropTypes.string,
+            contact: PropTypes.shape({
+                addresses: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        street: PropTypes.string,
+                        city: PropTypes.string,
+                        state: PropTypes.string,
+                        zipcode: PropTypes.string,
+                        country: PropTypes.string,
+                    })
+                ),
+                emails: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        emailType: PropTypes.string,
+                        address: PropTypes.string,
+                    })
+                ),
+                phones: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        phoneType: PropTypes.string,
+                        countryCode: PropTypes.string,
+                        number: PropTypes.string,
+                    })
+                ),
             }),
         }),
     }),

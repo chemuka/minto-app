@@ -82,7 +82,6 @@ const Profile = () => {
     const handleSave = async () => {
         setSaving(true);
         try {
-            //const res = await profileAPI.updateProfile(form);
             const response = await fetchWithAuth('http://localhost:8080/api/v1/profile', {
                 method: 'PUT',
                 credentials: "include",
@@ -98,7 +97,6 @@ const Profile = () => {
             }
             const data = await response.json()
             setProfileData(data);
-            //updateUser({ ...user, fullName: res.data.fullName });
             setEditing(false);
             showMessage('Profile updated!');
         } catch (err) {
@@ -108,7 +106,6 @@ const Profile = () => {
 
     const handlePictureUpload = (updatedProfile) => {
         setProfileData(updatedProfile);
-        //updateUser({ ...user, profilePictureUrl: updatedProfile.profilePictureUrl });
         showMessage('Profile picture updated!');
     };
 
@@ -140,7 +137,7 @@ const Profile = () => {
 
                                 { userApplications.length > 0 ? (
                                     <div className="my-4">
-                                        <h3 className="mb-3" style={{ color: 'darkgreen'}}>Your Applications</h3>
+                                        <h3 className="mb-3" style={s.title}>Your Applications</h3>
                                         <ul className="list-group">
                                             { userApplications.map((app, index) => (
                                                 <li key={index} className="list-group-item mb-3">
@@ -155,8 +152,7 @@ const Profile = () => {
                                                             {app.applicationStatus}
                                                         </span>
                                                     </div>
-                                                    Application #: {app.applicationNumber}
-                                                    {/**if submitted show submitted date, if approved show approved date, if rejected show rejected date */}
+                                                    Application #: {app.applicationNumber}                                                    {/**if submitted show submitted date, if approved show approved date, if rejected show rejected date */}
                                                     { app.submitted && <><br />Submitted On: {new Date(app.submittedDate).toLocaleDateString()}</> }
                                                     { app.approved && <><br />Approved On: {new Date(app.approvedDate).toLocaleDateString()}</> }
                                                     { app.rejectedDate && <><br />Rejected On: {new Date(app.rejectedDate).toLocaleDateString()}</> }
@@ -179,3 +175,7 @@ const Profile = () => {
 }
 
 export default Profile
+
+const s = {
+    title: { fontSize:'26px', fontWeight:'700', color:'darkgreen', margin:'0 0 4px' },
+}

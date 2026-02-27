@@ -21,7 +21,7 @@ const Contact = (props) => {
                         formData={formData} 
                         updateContact={updateContact} 
                         addContact={addContact} 
-                        removeContact={removeContact} 
+                        removeContact={removeContact}
                         formErrors={formErrors}
                         setFormErrors={setFormErrors}
                     />   
@@ -30,7 +30,9 @@ const Contact = (props) => {
                         formData={formData} 
                         updateContact={updateContact} 
                         addContact={addContact} 
-                        removeContact={removeContact} 
+                        removeContact={removeContact}
+                        formErrors={formErrors}
+                        setFormErrors={setFormErrors}
                     />  
 
                     <Phones 
@@ -38,6 +40,8 @@ const Contact = (props) => {
                         updateContact={updateContact} 
                         addContact={addContact} 
                         removeContact={removeContact}
+                        formErrors={formErrors}
+                        setFormErrors={setFormErrors}
                     />  
                 </div>
             </div>

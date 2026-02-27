@@ -28,18 +28,8 @@ import FamilyInfo from '../../person/FamilyInfo';
 import ClubRelativesForm from '../../person/ClubRelativesForm';
 import BeneficiariesForm from '../../person/BeneficiariesForm';
 import PersonalInfoForm from '../../person/personal-info-form/PersonalInfoForm';
-
-const DEFAULT_ERRORS = {
-    formData: {
-        person: {
-            contact: {
-                addresses: [],
-                emails: [],
-                phones: [],
-            },
-        },
-    },
-}
+import { defaultErrors } from '../../../model/defaultErrors';
+import { validators } from '../../validate/validators';
 
 /**
  * Create draft membership application by users with regular user permissions.
@@ -56,7 +46,8 @@ const DraftApplication = (props) => {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [currentStep, setCurrentStep] = useState(0)
     const [formData, setFormData] = useState({ ...defaultApplication, applicationStatus: 'Draft' })
-    const [formErrors, setFormErrors] = useState(DEFAULT_ERRORS)
+    const [formErrors, setFormErrors] = useState({ ...defaultErrors })
+    const [complete, setComplete] = useState(false)
     const user = getUser()
 
     const steps = [
@@ -353,39 +344,56 @@ const DraftApplication = (props) => {
                 }
             }
         }))
+
+        setFormErrors(prev => ({ ...prev,
+            person: { ...prev.person,
+                contact: { ...prev.person.contact,
+                    [type]: prev.person.contact[type].map((contact, i) => 
+                        i === index ? { ...contact, [field]: "" } : contact
+                    )
+                }
+            }
+        }))
     }
 
     const updateMainPerson = (field, value) => {
-        setFormData(prev => ({
-            ...prev,
+        setFormData(prev => ({ ...prev,
             person: {
-                ...prev.person,
-                [field]: value
+                ...prev.person, [field]: value
+            }
+        }))
+
+        setFormErrors(prev => ({ ...prev, 
+            person: {
+                ...prev.person, [field]: ""
             }
         }))
     }
 
     const updateFormData = (field, value) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }))
+        setFormData(prev => ({ ...prev, [field]: value }));
+        setFormErrors(prev => ({ ...prev, [field]: "" }));
     }
 
     const nextStep = () => {
-        if(validateForm()) {
+        if(validateStep(currentStep)) {
             if (currentStep < steps.length) {
                 setCurrentStep(currentStep + 1);
             }
         } else {
             console.log('Invalid form! Please correct the errors before proceeding to the next step.')
-            toast.error('Invalid form! Please correct the errors before proceeding to the next step.')
+            toast.error('Invalid form! Please correct the errors.')
         }
     }
 
     const prevStep = () => {
-        if (currentStep > 0) {
-            setCurrentStep(currentStep - 1);
+        if(validateStep(currentStep)) {
+            if (currentStep > 0) {
+                setCurrentStep(currentStep - 1);
+            }
+        } else {
+            console.log('Invalid form! Please correct the errors before proceeding to the next step.')
+            toast.error('Invalid form! Please correct the errors before proceeding to the next step.')
         }
     }
 
@@ -424,7 +432,6 @@ const DraftApplication = (props) => {
                     }
     
                     const applicationsData = await response.json()
-                    //console.log(applicationsData)
                     if(applicationsData.applicationNumber) {// Only set formData if a draft application exists
                         setFormData(applicationsData)
                         toast.success('Applications loaded successfully!')
@@ -462,11 +469,10 @@ const DraftApplication = (props) => {
         setSaving(true)
         setMessage('Saving membership application...')
         console.log('Saving membership application => ')
-        //console.log(formData)
 
         try {
             if(isAuthenticated) {
-                if (validateForm()) {
+                if (validateStep(currentStep)) {
                     toast.success('Application form is valid!')
                     const response = await fetchWithAuth('http://localhost:8080/api/v1/applications/draft', {
                         method: 'POST',
@@ -488,8 +494,7 @@ const DraftApplication = (props) => {
                     console.log(jsonData)
                     setMessage('Membership application saved successfully!')
                     toast.success('Membership application saved successfully!')
-                    setFormErrors(DEFAULT_ERRORS)
-                    //navigate('/login')
+                    setFormErrors({})
                 } else {
                     console.log('Invalid form! Please correct the errors and try again.')
                     console.log(formErrors)
@@ -531,7 +536,7 @@ const DraftApplication = (props) => {
                 setIsSubmitted(true)
                 setMessage('Membership application submitted successfully!')
                 toast.success('Membership application submitted successfully!')
-                //navigate('/login')
+                setFormErrors({})
             }
         } catch (error) {
             console.error('Error submitting application:', error)
@@ -541,226 +546,253 @@ const DraftApplication = (props) => {
         }
     }
 
-    const validateForm = () => {
-        let isValid = true
-        const newErrors = DEFAULT_ERRORS
-        const emailRegex = /\S+@\S+\.\S+/;
-        const CountryCodeRegex = /\p{Regional_Indicator}{2}\s?\+\d{1,4}/u;
-        //const oneUCaseRegex = /(?=.*?[A-Z])/;
-        //const oneLCaseRegex = /(?=.*?[a-z])/;
-        //const oneDigitRegex = /(?=.*?[0-9])/;
-        //const oneSpecialCharRegex = /(?=.*?[!@#$%^&*()_+=[\]{}|;':",./<>?])/;
-        //const minEightCharRegex = /.{8,}/;
-
-        if (!formData.person.firstName) {
-            newErrors.formData.person.firstName = 'Firstname cannot be empty!';
-            isValid = false;
-        } else if (formData.person.firstName.length < 2) {
-            newErrors.formData.person.firstName = 'Firstname must be at least 2 characters';
-            isValid = false;
-        } else if (formData.person.firstName.trim() !== formData.person.firstName) {
-            newErrors.formData.person.firstName = 'Firstname cannot have leading or trailing spaces';
-            isValid = false;
-        } else {
-            newErrors.formData.person.firstName = '';
-        }   
-
-        if (!formData.person.lastName) {
-            newErrors.formData.person.lastName = 'Lastname cannot be empty!';
-            isValid = false;
-        } else if (formData.person.lastName.length < 2) {
-            newErrors.formData.person.lastName = 'Lastname must be at least 2 characters';
-            isValid = false;
-        } else if (formData.person.lastName.trim() !== formData.person.lastName) {
-            newErrors.formData.person.lastName = 'Lastname cannot have leading or trailing spaces';
-            isValid = false;
-        } else {
-            newErrors.formData.person.lastName = '';
+    /**
+     * Returns true if any string value within the nested data structure is an empty
+     * string (or a string with only whitespaces), and false otherwise
+     */
+    const hasEmptyString = (data) => {
+        // 1. Check if the current value is a string
+        if (typeof data === 'string') {
+            // Return true if the string is empty or contains only whitespace
+            return data.trim().length === 0;
         }
 
-        if (!formData.person.dob) {
-            newErrors.formData.person.dob = 'Date of Birth is required!';
-            isValid = false;
-        } else {
-            const dobDate = new Date(formData.person.dob);
-            const today = new Date();
-
-            if (dobDate > today) {
-                newErrors.formData.person.dob = 'Date of Birth cannot be in the future!';
-                isValid = false;
-            } else {
-                newErrors.formData.person.dob = ''
+        // 2. Check if the current value is an array
+        if (Array.isArray(data)) {
+            // Iterate over the array elements
+            for (const item of data) {
+                // Recursively call the function for each element
+                if (hasEmptyString(item)) {
+                    return true; // Found an empty string in a nested structure
+                }
             }
         }
 
-        if (!formData.person.lifeStatus) {
-            newErrors.formData.person.lifeStatus = 'Life Status is required!';
-            isValid = false;
-        } else {
-            newErrors.formData.person.lifeStatus = ''
-        }
-
-        if (!formData.maritalStatus) {
-            newErrors.formData.maritalStatus = 'Marital Status is required!';
-            isValid = false;
-        } else {
-            newErrors.formData.maritalStatus = ''
-        }
-
-        if (!formData.applicationStatus) {
-            newErrors.formData.applicationStatus = 'Application Status is required!';
-            isValid = false;
-        } else {
-            newErrors.formData.applicationStatus = ''
-        }
-
-        // Addresses validation
-        formData.person.contact.addresses.forEach((address, index) => {
-            let addressErrors = {addressType: '', street: '', city: '', state: '', zipcode: '', country: '' }
-            if (address) {
-                console.log('Found addresses')
-                if (!address.addressType) {
-                    console.log('Address Type required')
-                    addressErrors.addressType = 'Address type is required!';
-                    isValid = false;
-                } else if (address.addressType.trim() === '') {
-                    addressErrors.addressType = 'Address type cannot be empty!';
-                    isValid = false;
-                } else if (address.addressType.trim() !== address.addressType) {
-                    addressErrors.addressType = 'Address type cannot have leading or trailing spaces!';
-                    isValid = false;
-                }
-
-                if (!address.street) {
-                    addressErrors.street = 'Street is required!';
-                    isValid = false;
-                } else if (address.street.length < 5) {
-                    addressErrors.street = 'Street address must be at least 5 characters!';
-                    isValid = false;
-                } else if (address.street.trim() !== address.street) {
-                    addressErrors.street = 'Street address cannot have leading or trailing spaces!';
-                    isValid = false;
-                }
-                    
-                if (!address.city) {
-                    addressErrors.city = 'City is required!';
-                    isValid = false;
-                } else if (address.city.length < 2) {
-                    addressErrors.city = 'City must be at least 2 characters!';
-                    isValid = false;
-                } else if (address.city.trim() !== address.city) {
-                    addressErrors.city = 'City cannot have leading or trailing spaces!';
-                    isValid = false;
-                }
-                    
-                if (address.state && address.state.length < 2) {
-                    addressErrors.state = 'State must be at least 2 characters!';
-                    isValid = false;
-                } else if (address.state.trim() !== address.state) {   
-                    addressErrors.state = 'State cannot have leading or trailing spaces!';
-                    isValid = false;
-                }
-                    
-                if (address.zipcode && address.zipcode.trim() !== address.zipcode) {
-                    addressErrors.zipcode = 'Zipcode cannot have leading or trailing spaces!';
-                    isValid = false;
-                }
-
-                if (!address.country) {
-                    addressErrors.country = 'Country is required!';
-                    isValid = false;
-                } else if (address.country.trim() !== address.country) {
-                    addressErrors.country = 'Country cannot have leading or trailing spaces!';
-                    isValid = false;
-                } else if (address.country.length < 2) {
-                    addressErrors.country = 'Country must be at least 2 characters!';
-                    isValid = false;
-                } else if (address.country.length > 56) {
-                    addressErrors.country = 'Country cannot exceed 56 characters!';
-                    isValid = false;
+        // 3. Check if the current value is an object (and not null)
+        if (typeof data === 'object' && data !== null) {
+            // Iterate over the object's values
+            for (const value of Object.values(data)) {
+                // Recursively call the function for each value
+                if (hasEmptyString(value)) {
+                    return true; // Found an empty string in a nested structure
                 }
             }
-            newErrors.formData.person.contact.addresses[index] = addressErrors
-        })
+        }
 
-        // Phones validation
-        formData.person.contact.phones.forEach((phone, index) => {
-            let phoneErrors = { phoneType: '', countryCode: '', number: '' }
-            if (phone) {
-                if (phone.phoneType.trim() === '') {
-                    phoneErrors.phoneType = 'Phone type cannot be empty!';  
-                    isValid = false;
-                } else if (phone.phoneType.trim() !== phone.phoneType) {
-                    phoneErrors.phoneType = 'Phone type cannot have leading or trailing spaces!';
-                    isValid = false;
-                }
+        // If none of the above conditions returned true, there are no empty strings
+        return false;
+    };
 
-                if (phone.number.length < 7 || phone.number.length > 15) {
-                    phoneErrors.number = 'Phone number must be between 7 and 15 digits!'; 
-                    isValid = false;
-                } else if (!/^\d+$/.test(phone.number)) {
-                    phoneErrors.number = 'Phone number must contain only digits!';
-                    isValid = false;
-                } else if (phone.number.trim() !== phone.number) {
-                    phoneErrors.number = 'Phone number cannot have leading or trailing spaces!';
-                    isValid = false;
-                }
+    /**
+     * Recursively checks if all string values in an array or object are empty strings.
+     * Considers null, undefined, false, 0, and empty arrays/objects as "empty" in this context.
+     * 
+     * @param {*} val The value to check.
+     * @returns {boolean} True if all values are empty, false otherwise.
+     */
+    const areAllEmptyStrings = (val) => {
+        // Check for primitive falsy values (null, undefined, false, 0, "")
+        if (!val && val !== 0 && val !== false) {
+            return true;
+        }
 
-                //if (!/^\+\d{1,4}$/.test(formData.person.contact.phones[0].countryCode)) { 
-                if (!CountryCodeRegex.test(phone.countryCode)) {
-                    phoneErrors.countryCode = 'Country code must be in format +123!';  
-                    isValid = false;
-                } else if (phone.countryCode.trim() !== phone.countryCode) {
-                    phoneErrors.countryCode = 'Country code cannot have leading or trailing spaces!';
-                    isValid = false;
-                }
-            }
-            newErrors.formData.person.contact.phones[index] = phoneErrors
-        })
+        // If it is an array or object, recursively check its contents
+        if (typeof val === "object" && val !== null) {
+            const values = Array.isArray(val) ? val : Object.values(val);
+            // Use Array.prototype.every() to check if all elements satisfy the condition
+            // For an empty array, every() returns true (vacuously true).
+            return values.every(areAllEmptyStrings);
+        }
         
-        // Emails validation
-        formData.person.contact.emails.forEach((email, index) => {
-            let emailErrors = { emailType: '', address: '' }
-            if (email) {
-                if(!email.emailType) {
-                    emailErrors.emailType = 'Email type is required!';  
-                    isValid = false;
-                } else if (email.emailType.trim() === '') {
-                    emailErrors.emailType = 'Email type cannot be empty!';  
-                    isValid = false;
-                } else if (email.emailType.trim() !== email.emailType) {
-                    emailErrors.emailType = 'Email type cannot have leading or trailing spaces!';
-                    isValid = false;
-                }
+        // For other non-falsy primitive types (like numbers, booleans, or non-empty strings), 
+        // it is not "empty" according to the requirement, so return false.
+        return false;
+    };
 
-                if(email.address.length === 0) {
-                    emailErrors.address = 'Email address cannot be empty!';  
-                    isValid = false;
-                } else if(email.address.trim() === '') {
-                    emailErrors.address = 'Email address cannot be empty or just spaces!';  
-                    isValid = false;
-                } else if(email.address.trim() !== email.address) {
-                    emailErrors.address = 'Email address cannot have leading or trailing spaces!';
-                    isValid = false;
-                } else if (email.address.length < 5) {
-                    emailErrors.address = 'Email address must be at least 5 characters!';  
-                    isValid = false;
-                } else if (email.address.length > 100) {
-                    emailErrors.address = 'Email address cannot exceed 100 characters!';  
-                    isValid = false;
-                } else if (!emailRegex.test(email.address)) {
-                    emailErrors.address = 'Email address format is invalid!';  
-                    isValid = false;
-                }
-            }
-            newErrors.formData.person.contact.emails[index] = emailErrors;
+    const validatePerson = (obj) => {
+        let person = { 
+            firstName: '', middleName: '', lastName: '', dob: '', lifeStatus: '', 
+            contact: {
+                addresses: [],
+                emails: [],
+                phones: []
+            } 
+        }
+        person.firstName = validators.name(obj.person.firstName);
+        person.middleName = validators.optionalString(2)(obj.person.middleName)
+        person.lastName = validators.name(obj.person.lastName)
+        person.dob = validators.required(obj.person.dob) || validators.dob(obj.person.dob)
+        person.lifeStatus = validators.required(obj.person.lifeStatus)
+
+        // Reset Addresses Errors
+        person.contact.addresses = [];
+        // Addresses validation
+        obj.person.contact.addresses.forEach((address, index) => {
+            let addressErrors = { addressType: "", street: "", city: "", state: "", zipcode: "", country: "" };
+            addressErrors.addressType = validators.required(address.addressType);
+            addressErrors.street = validators.street(address.street);
+            addressErrors.city = validators.required(address.city);
+            addressErrors.state = validators.optionalString(address.state);
+            addressErrors.zipcode = validators.optionalString(address.zipcode);
+            addressErrors.country = validators.required(address.country);
+            person.contact.addresses[index] = addressErrors;
+        });
+
+        // Reset Emails Errors
+        person.contact.emails = [];
+        // Emails validation
+        obj.person.contact.emails.forEach((email, index) => {
+            let emailErrors = { emailType: '', address: ''};
+            emailErrors.emailType = validators.required(email.emailType);
+            emailErrors.address = validators.email(email.address);
+            person.contact.emails[index] = emailErrors;
+        });
+
+        // Reset Phones Errors
+        person.contact.phones = [];
+        // Phones validation
+        obj.person.contact.phones.forEach((phone, index) => {
+            let phoneErrors = { phoneType: '', countryCode: '', number: '' }
+            phoneErrors.phoneType = validators.required(phone.phoneType);
+            phoneErrors.countryCode = validators.countryCode(phone.countryCode);
+            phoneErrors.number = validators.phone(phone.number);
+            person.contact.phones[index] = phoneErrors;
         })
 
-        setFormErrors(newErrors);
-        return isValid;
+        return person
     }
 
-    const renderPersonForm = (entry, arrayName, index, title) => {
+    const validateStep = (s = currentStep) => {
+        const e = { ...defaultErrors }
+        
+        if (s === 0) { // Step 1: Personal Info
+            e.applicationStatus = validators.required(formData.applicationStatus)
+            e.person.firstName = validators.name(formData.person.firstName);
+            e.person.middleName = validators.optionalString(2)(formData.person.middleName)
+            e.person.lastName = validators.name(formData.person.lastName)
+            e.person.dob = validators.required(formData.person.dob) || validators.dob(formData.person.dob)
+            e.person.lifeStatus = validators.required(formData.person.lifeStatus)
+            e.maritalStatus = validators.required(formData.maritalStatus)
+
+            // Reset Addresses Errors
+            e.person.contact.addresses = [];
+            // Addresses validation
+            formData.person.contact.addresses.forEach((address, index) => {
+                let addressErrors = { addressType: "", street: "", city: "", state: "", zipcode: "", country: "" };
+                addressErrors.addressType = validators.required(address.addressType);
+                addressErrors.street = validators.street(address.street);
+                addressErrors.city = validators.required(address.city);
+                addressErrors.state = validators.optionalString(2)(address.state);
+                addressErrors.zipcode = validators.optionalString(3)(address.zipcode);
+                addressErrors.country = validators.required(address.country);
+                e.person.contact.addresses[index] = addressErrors;
+            });
+
+            // Reset Emails Errors
+            e.person.contact.emails = [];
+            // Emails validation
+            formData.person.contact.emails.forEach((email, index) => {
+                let emailErrors = { emailType: '', address: ''};
+                emailErrors.emailType = validators.required(email.emailType) || validators.required(email.emailType);
+                emailErrors.address = validators.email(email.address);
+                e.person.contact.emails[index] = emailErrors;
+            });
+
+            // Reset Phones Errors
+            e.person.contact.phones = [];
+            // Phones validation
+            formData.person.contact.phones.forEach((phone, index) => {
+                let phoneErrors = { phoneType: '', countryCode: '', number: '' }
+                phoneErrors.phoneType = validators.required(phone.phoneType);
+                phoneErrors.countryCode = validators.countryCode(phone.countryCode);
+                phoneErrors.number = validators.phone(phone.number);
+                e.person.contact.phones[index] = phoneErrors;
+            })
+        }
+        
+        if (s === 1) { // Step 2: Family Info
+            e.spouses = []
+            formData.spouses.forEach((spouse, index) => {
+                let personErrors = validatePerson(spouse);
+                let spouseErrors = { maritalStatus: '', person: {} };
+                spouseErrors.maritalStatus = validators.required(spouse.maritalStatus);
+                spouseErrors.person = personErrors
+                e.spouses[index] = spouseErrors;
+            })
+
+            e.children = []
+            formData.children.forEach((child, index) => {
+                let personErrors = validatePerson(child);
+                let childErrors = { childType: '', person: {} };
+                childErrors.childType = validators.required(child.childType);
+                childErrors.person = personErrors;
+                e.children[index] = childErrors;
+            })
+        }
+        
+        if (s === 2) { // Step 3: Parent Info
+            e.parents = []
+            formData.parents.forEach((parent, index) => {
+                let personErrors = validatePerson(parent);
+                let parentErrors = { parentType: '', person: {} };
+                parentErrors.parentType = validators.required(parent.parentType);
+                parentErrors.person = personErrors;
+                e.parents[index] = parentErrors;
+            })
+        }
+        
+        if (s === 3) { // Step 4: Sibling Info
+            e.siblings = []
+            formData.siblings.forEach((sibling, index) => {
+                let personErrors = validatePerson(sibling);
+                let siblingErrors = { siblingType: '', person: {} };
+                siblingErrors.siblingType = validators.required(sibling.siblingType);
+                siblingErrors.person = personErrors;
+                e.siblings[index] = siblingErrors;
+            })
+        }
+
+        if (s === 4) { // Step 5: Reference Info
+            e.referees = []
+            formData.referees.forEach((referee, index) => {
+                let personErrors = validatePerson(referee);
+                let refereeErrors = { membershipNumber: '', person: {} };
+                refereeErrors.membershipNumber = validators.membershipNumber(referee.membershipNumber);
+                refereeErrors.person = personErrors;
+                e.referees[index] = refereeErrors;
+            })
+        }
+
+        if (s === 5) { // Step 6: Relatives Info
+            e.relatives = []
+            formData.relatives.forEach((relative, index) => {
+                let personErrors = validatePerson(relative);
+                let relativeErrors = { membershipNumber: '', familyRelationship: '', person: {} };
+                relativeErrors.familyRelationship = validators.required(relative.familyRelationship);
+                relativeErrors.membershipNumber = validators.membershipNumber(relative.membershipNumber);
+                relativeErrors.person = personErrors;
+                e.relatives[index] = relativeErrors;
+            })
+        }
+
+        if (s === 6) { // Step 7: Beneficiaries Info
+            e.beneficiaries = []
+            formData.beneficiaries.forEach((beneficiary, index) => {
+                let personErrors = validatePerson(beneficiary);
+                let beneficiaryErrors = { percentage: '', relationship: '', person: {} };
+                beneficiaryErrors.relationship = validators.required(beneficiary.relationship);
+                beneficiaryErrors.percentage = validators.membershipNumber(beneficiary.percentage);
+                beneficiaryErrors.person = personErrors;
+                e.beneficiaries[index] = beneficiaryErrors;
+            })
+        }
+        
+        console.log(e)
+        setFormErrors(e);
+        return areAllEmptyStrings(e);
+    }
+
+    const renderPersonForm = (entry, arrayName, index, title, formErrors) => {
         return (
             <PersonForm 
                 key={index}
@@ -773,6 +805,7 @@ const DraftApplication = (props) => {
                 addContactForPerson={addContactForPerson}
                 updateContactForPerson={updateContactForPerson}
                 removeContactForPerson={removeContactForPerson}
+                formErrors={formErrors}
             />
         )
     }
@@ -800,6 +833,7 @@ const DraftApplication = (props) => {
                 formData={formData}
                 addPersonToArray={addPersonToArray}
                 renderPersonForm={renderPersonForm}
+                formErrors={formErrors}
              />
         )
     }

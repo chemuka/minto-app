@@ -4,7 +4,7 @@ import countriesData from '../../../assets/data/countries.json';
 import { useState } from 'react';
 
 const Addresses = (props) => {
-    const { formData, updateContact, addContact, removeContact } = props;
+    const { formData, updateContact, addContact, removeContact, formErrors } = props;
     const [errors, setErrors] = useState([])
 
     const validateAddressField = (index, field) => {    
@@ -148,8 +148,8 @@ const Addresses = (props) => {
                                     </select>
                                     <label htmlFor={`address-type-${index}`}>Type*</label>
                                 </div>
-                                { errors[index]?.addressType && (
-                                    <div className="text-danger mt-1">{errors[index].addressType}</div>
+                                { formErrors.person.contact.addresses[index]?.addressType && (
+                                    <div className="text-danger mt-1">{formErrors.person.contact.addresses[index].addressType}</div>
                                 )}
                             </div>
                             <div className="col-sm-7 mb-3">
@@ -166,8 +166,8 @@ const Addresses = (props) => {
                                     />
                                     <label htmlFor={`address-street-${index}`}>Street Address*</label>
                                 </div>
-                                { errors[index]?.street && (
-                                    <div className="text-danger mt-1">{errors[index].street}</div>
+                                { formErrors.person.contact.addresses[index]?.street && (
+                                    <div className="text-danger mt-1">{formErrors.person.contact.addresses[index].street}</div>
                                 )}
                             </div>
                         </div>
@@ -186,8 +186,8 @@ const Addresses = (props) => {
                                     />
                                     <label htmlFor={`address-city-${index}`}>City*</label>
                                 </div>
-                                { errors[index]?.city && (
-                                    <div className="text-danger mt-1">{errors[index].city}</div>
+                                { formErrors.person.contact.addresses[index]?.city && (
+                                    <div className="text-danger mt-1">{formErrors.person.contact.addresses[index].city}</div>
                                 )}
                             </div>
                             <div className="col-sm-7 mb-3">
@@ -203,8 +203,8 @@ const Addresses = (props) => {
                                     />
                                     <label htmlFor={`address-state-${index}`}>State</label>
                                 </div>
-                                { errors[index]?.state && (
-                                    <div className="text-danger mt-1">{errors[index].state}</div>
+                                { formErrors.person.contact.addresses[index]?.state && (
+                                    <div className="text-danger mt-1">{formErrors.person.contact.addresses[index].state}</div>
                                 )}
                             </div>
                         </div>
@@ -222,8 +222,8 @@ const Addresses = (props) => {
                                     />
                                     <label htmlFor={`address-zipcode-${index}`}>Zip Code</label>
                                 </div>
-                                { errors[index]?.zipcode && (
-                                    <div className="text-danger mt-1">{errors[index].zipcode}</div>
+                                { formErrors.person.contact.addresses[index]?.zipcode && (
+                                    <div className="text-danger mt-1">{formErrors.person.contact.addresses[index].zipcode}</div>
                                 )}
                             </div>
                             <div className="col-sm-7 mb-3">
@@ -246,8 +246,8 @@ const Addresses = (props) => {
                                     </select>
                                     <label htmlFor={`country-${index}`}>Country*</label>
                                 </div>
-                                { errors[index]?.country && (
-                                    <div className="text-danger mt-1">{errors[index].country}</div>
+                                { formErrors.person.contact.addresses[index]?.country && (
+                                    <div className="text-danger mt-1">{formErrors.person.contact.addresses[index].country}</div>
                                 )}
                             </div>
                         </div>
@@ -263,42 +263,39 @@ Addresses.propTypes = {
     updateContact: PropTypes.func,
     addContact: PropTypes.func,
     removeContact: PropTypes.func,
-    setFormErrors: PropTypes.func,
     formErrors: PropTypes.shape({
-        formData: PropTypes.shape({
-            person: PropTypes.shape({
-                firstName: PropTypes.string,
-                middleName: PropTypes.string,
-                lastName: PropTypes.string,
-                dob: PropTypes.string,
-                lifeStatus: PropTypes.string,
-                maritalStatus: PropTypes.string,
-                applicationStatus: PropTypes.string,
-                contact: PropTypes.shape({
-                    addresses: PropTypes.arrayOf(
-                        PropTypes.shape({
-                            addressType: PropTypes.string,
-                            street: PropTypes.string,
-                            city: PropTypes.string,
-                            state: PropTypes.string,
-                            zipcode: PropTypes.string,
-                            country: PropTypes.string,
-                        })
-                    ),
-                    emails: PropTypes.arrayOf(
-                        PropTypes.shape({
-                            emailType: PropTypes.string,
-                            address: PropTypes.string,
-                        })
-                    ),
-                    phones: PropTypes.arrayOf(
-                        PropTypes.shape({
-                            phoneType: PropTypes.string,
-                            countryCode: PropTypes.string,
-                            number: PropTypes.string,
-                        })
-                    ),
-                }),
+        person: PropTypes.shape({
+            firstName: PropTypes.string,
+            middleName: PropTypes.string,
+            lastName: PropTypes.string,
+            dob: PropTypes.string,
+            lifeStatus: PropTypes.string,
+            maritalStatus: PropTypes.string,
+            applicationStatus: PropTypes.string,
+            contact: PropTypes.shape({
+                addresses: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        addressType: PropTypes.string,
+                        street: PropTypes.string,
+                        city: PropTypes.string,
+                        state: PropTypes.string,
+                        zipcode: PropTypes.string,
+                        country: PropTypes.string,
+                    })
+                ),
+                emails: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        emailType: PropTypes.string,
+                        address: PropTypes.string,
+                    })
+                ),
+                phones: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        phoneType: PropTypes.string,
+                        countryCode: PropTypes.string,
+                        number: PropTypes.string,
+                    })
+                ),
             }),
         }),
     }),

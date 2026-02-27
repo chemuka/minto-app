@@ -5,6 +5,7 @@ import DashboardThemeProvider from "../provider/DashboardThemeProvider"
 import Login from "./Login"
 import MemberProfile from "./profile/MemberProfile"
 import Profile from "./profile/Profile"
+import StaffProfile from "./profile/StaffProfile"
 
 const AuthPage = () => {
     const { isAuthenticated, loading, getUser } = useAuth()
@@ -22,7 +23,7 @@ const AuthPage = () => {
         if(user.decoded.role === 'Admin') {
             return <DashboardThemeProvider><AdminDashboard /></DashboardThemeProvider>
         } else if(user.decoded.role === 'Staff') {
-            return <MemberProfile />
+            return <StaffProfile />
         } else if(user.decoded.role === 'Member') {
             return <MemberProfile />
         }

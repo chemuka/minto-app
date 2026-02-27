@@ -79,7 +79,6 @@ const AuthenticationProvider = ({ children }) => {
             localStorage.setItem('user', JSON.stringify(authenticatedUser))
             setIsAuthenticated(true)
             toast.success('Login successful')
-            
         } catch (err) {
             setError(err.message)
             toast.error(err.message)
