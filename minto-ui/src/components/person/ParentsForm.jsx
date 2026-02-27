@@ -2,7 +2,7 @@ import { People, PeopleFill, Plus } from 'react-bootstrap-icons';
 import PropTypes from 'prop-types';
 
 const ParentsForm = (props) => {
-    const { formData, addPersonToArray, renderPersonForm } = props;
+    const { formData, addPersonToArray, renderPersonForm, formErrors } = props;
     return (
         <>
             <div className='card'>
@@ -42,7 +42,7 @@ const ParentsForm = (props) => {
                             <p className="text-secondary text-center py-4">No parents added yet</p>
                         ) : (
                             formData.parents.map((parent, index) => 
-                            renderPersonForm(parent, 'parents', index, 'Parent')
+                            renderPersonForm(parent, 'parents', index, 'Parent', formErrors)
                             )
                         )}
                     </div>
@@ -56,6 +56,7 @@ ParentsForm.propTypes = {
     formData: PropTypes.object.isRequired,
     addPersonToArray: PropTypes.func.isRequired,
     renderPersonForm: PropTypes.func.isRequired,
+    formErrors: PropTypes.object,
 }
 
 export default ParentsForm

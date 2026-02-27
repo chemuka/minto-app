@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import countriesData from '../../../assets/data/countries.json';
 
 const AddressDetails = (props) => {
-    const { index, title, arrayName, person, updateContactForPerson, removeContactForPerson, addContactForPerson } = props;
+    const { index, title, arrayName, person, updateContactForPerson, removeContactForPerson, addContactForPerson, 
+        formErrors } = props;
 
     return (
         <>
@@ -60,6 +61,14 @@ const AddressDetails = (props) => {
                                     </select>
                                     <label htmlFor={`${arrayName}-${index}-address-type`}>Type</label>
                                 </div>
+                                { 
+                                    formErrors[arrayName].length > 0 &&
+                                    formErrors[arrayName][index].person.contact.addresses.length > 0 && 
+                                    formErrors[arrayName][index].person.contact.addresses[addrIndex].addressType && 
+                                    <div className="text-danger mt-1">
+                                        { formErrors[arrayName][index].person.contact.addresses[addrIndex].addressType }
+                                    </div>
+                                }
                             </div>
                             <div className="col-sm-7 mb-3">
                                 <div className="form-floating">
@@ -73,6 +82,14 @@ const AddressDetails = (props) => {
                                     />
                                     <label htmlFor={`${arrayName}-${index}-street`}>Street Address</label>
                                 </div>
+                                { 
+                                    formErrors[arrayName].length > 0 &&
+                                    formErrors[arrayName][index].person.contact.addresses.length > 0 && 
+                                    formErrors[arrayName][index].person.contact.addresses[addrIndex].street && 
+                                    <div className="text-danger mt-1">
+                                        { formErrors[arrayName][index].person.contact.addresses[addrIndex].street }
+                                    </div>
+                                }
                             </div>
                         </div>
                         <div className="form-group row">
@@ -88,6 +105,14 @@ const AddressDetails = (props) => {
                                     />
                                     <label htmlFor={`${arrayName}-${index}-city`}>City</label>
                                 </div>
+                                { 
+                                    formErrors[arrayName].length > 0 &&
+                                    formErrors[arrayName][index].person.contact.addresses.length > 0 && 
+                                    formErrors[arrayName][index].person.contact.addresses[addrIndex].city && 
+                                    <div className="text-danger mt-1">
+                                        { formErrors[arrayName][index].person.contact.addresses[addrIndex].city }
+                                    </div>
+                                }
                             </div>
                             <div className="col-sm-7 mb-3">
                                 <div className="form-floating">
@@ -101,6 +126,14 @@ const AddressDetails = (props) => {
                                     />
                                     <label htmlFor={`${arrayName}-${index}-state`}>State</label>
                                 </div>
+                                { 
+                                    formErrors[arrayName].length > 0 &&
+                                    formErrors[arrayName][index].person.contact.addresses.length > 0 && 
+                                    formErrors[arrayName][index].person.contact.addresses[addrIndex].state && 
+                                    <div className="text-danger mt-1">
+                                        { formErrors[arrayName][index].person.contact.addresses[addrIndex].state }
+                                    </div>
+                                }
                             </div>
                         </div>
                         <div className="form-group row">
@@ -116,6 +149,14 @@ const AddressDetails = (props) => {
                                     />
                                     <label htmlFor={`${arrayName}-${index}-zipcode`}>Zip Code</label>
                                 </div>
+                                { 
+                                    formErrors[arrayName].length > 0 &&
+                                    formErrors[arrayName][index].person.contact.addresses.length > 0 && 
+                                    formErrors[arrayName][index].person.contact.addresses[addrIndex].zipcode && 
+                                    <div className="text-danger mt-1">
+                                        { formErrors[arrayName][index].person.contact.addresses[addrIndex].zipcode }
+                                    </div>
+                                }
                             </div>
                             <div className="col-sm-7 mb-3">
                                 <div className="form-floating">
@@ -135,6 +176,14 @@ const AddressDetails = (props) => {
                                     </select>
                                     <label htmlFor={`${arrayName}-${index}-country`}>Country</label>
                                 </div>
+                                { 
+                                    formErrors[arrayName].length > 0 &&
+                                    formErrors[arrayName][index].person.contact.addresses.length > 0 && 
+                                    formErrors[arrayName][index].person.contact.addresses[addrIndex].country && 
+                                    <div className="text-danger mt-1">
+                                        { formErrors[arrayName][index].person.contact.addresses[addrIndex].country }
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
@@ -151,7 +200,114 @@ AddressDetails.propTypes = {
     person: PropTypes.object.isRequired,
     updateContactForPerson: PropTypes.func.isRequired,
     removeContactForPerson: PropTypes.func.isRequired,
-    addContactForPerson: PropTypes.func.isRequired
+    addContactForPerson: PropTypes.func.isRequired,
+    formErrors: PropTypes.shape({
+        maritalStatus: PropTypes.string,
+        applicationStatus: PropTypes.string,
+        person: PropTypes.shape({
+            firstName: PropTypes.string,
+            middleName: PropTypes.string,
+            lastName: PropTypes.string,
+            dob: PropTypes.string,
+            lifeStatus: PropTypes.string,
+            contact: PropTypes.shape({
+                addresses: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        street: PropTypes.string,
+                        city: PropTypes.string,
+                        state: PropTypes.string,
+                        zipcode: PropTypes.string,
+                        country: PropTypes.string,
+                    })
+                ),
+                emails: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        emailType: PropTypes.string,
+                        address: PropTypes.string,
+                    })
+                ),
+                phones: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        phoneType: PropTypes.string,
+                        countryCode: PropTypes.string,
+                        number: PropTypes.string,
+                    })
+                ),
+            }),
+        }),
+        spouses: PropTypes.arrayOf(
+            PropTypes.shape({
+                maritalStatus: PropTypes.string,
+                person: PropTypes.shape({
+                    firstName: PropTypes.string,
+                    middleName: PropTypes.string,
+                    lastName: PropTypes.string,
+                    dob: PropTypes.string,
+                    lifeStatus: PropTypes.string,
+                    contact: PropTypes.shape({
+                        addresses: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                street: PropTypes.string,
+                                city: PropTypes.string,
+                                state: PropTypes.string,
+                                zipcode: PropTypes.string,
+                                country: PropTypes.string,
+                            })
+                        ),
+                        emails: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                emailType: PropTypes.string,
+                                address: PropTypes.string,
+                            })
+                        ),
+                        phones: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                phoneType: PropTypes.string,
+                                countryCode: PropTypes.string,
+                                number: PropTypes.string,
+                            })
+                        ),
+                    }),
+                }),
+            })
+        ),
+        children: PropTypes.arrayOf(
+            PropTypes.shape({
+                childType: PropTypes.string,
+                person: PropTypes.shape({
+                    firstName: PropTypes.string,
+                    middleName: PropTypes.string,
+                    lastName: PropTypes.string,
+                    dob: PropTypes.string,
+                    lifeStatus: PropTypes.string,
+                    contact: PropTypes.shape({
+                        addresses: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                street: PropTypes.string,
+                                city: PropTypes.string,
+                                state: PropTypes.string,
+                                zipcode: PropTypes.string,
+                                country: PropTypes.string,
+                            })
+                        ),
+                        emails: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                emailType: PropTypes.string,
+                                address: PropTypes.string,
+                            })
+                        ),
+                        phones: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                phoneType: PropTypes.string,
+                                countryCode: PropTypes.string,
+                                number: PropTypes.string,
+                            })
+                        ),
+                    }),
+                }),
+            })
+        ),
+    }),
 }
 
 export default AddressDetails

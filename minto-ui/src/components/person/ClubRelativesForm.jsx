@@ -2,7 +2,7 @@ import { PersonLinesFill, Plus } from 'react-bootstrap-icons';
 import PropTypes from 'prop-types';
 
 const ClubRelativesForm = (props) => {
-    const { formData, addPersonToArray, renderPersonForm } = props;
+    const { formData, addPersonToArray, renderPersonForm, formErrors } = props;
 
     return (
         <>
@@ -43,7 +43,7 @@ const ClubRelativesForm = (props) => {
                             <p className="text-secondary text-center py-4">No relatives added yet</p>
                         ) : (
                             formData.relatives.map((relative, index) => 
-                            renderPersonForm(relative, 'relatives', index, 'Relative')
+                            renderPersonForm(relative, 'relatives', index, 'Relative', formErrors)
                             )
                         )}
                     </div>
@@ -57,6 +57,7 @@ ClubRelativesForm.propTypes = {
     formData: PropTypes.object.isRequired,
     addPersonToArray: PropTypes.func.isRequired,
     renderPersonForm: PropTypes.func.isRequired,
+    formErrors: PropTypes.object,
 }
 
 export default ClubRelativesForm

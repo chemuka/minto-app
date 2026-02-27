@@ -2,7 +2,7 @@ import { PersonArmsUp, Plus } from 'react-bootstrap-icons';
 import PropTypes from 'prop-types';
 
 const SiblingsForm = (props) => {
-    const { formData, addPersonToArray, renderPersonForm } = props;
+    const { formData, addPersonToArray, renderPersonForm, formErrors } = props;
 
   return (
     <>
@@ -43,7 +43,7 @@ const SiblingsForm = (props) => {
                         <p className="text-secondary text-center py-4">No siblings added yet</p>
                     ) : (
                         formData.siblings.map((sibling, index) => 
-                        renderPersonForm(sibling, 'siblings', index, 'Sibling')
+                        renderPersonForm(sibling, 'siblings', index, 'Sibling', formErrors)
                         )
                     )}
                 </div>
@@ -57,6 +57,7 @@ SiblingsForm.propTypes = {
     formData: PropTypes.object.isRequired,
     addPersonToArray: PropTypes.func.isRequired,
     renderPersonForm: PropTypes.func.isRequired,
+    formErrors: PropTypes.object,
 }
 
 export default SiblingsForm

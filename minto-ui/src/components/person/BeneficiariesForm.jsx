@@ -2,7 +2,7 @@ import { PersonHearts, Plus } from 'react-bootstrap-icons'
 import PropTypes from 'prop-types';
 
 const BeneficiariesForm = (props) => {
-    const { formData, addPersonToArray, renderPersonForm } = props;
+    const { formData, addPersonToArray, renderPersonForm, formErrors } = props;
 
     return (
         <>
@@ -43,7 +43,7 @@ const BeneficiariesForm = (props) => {
                             <p className="text-secondary text-center py-4">No beneficiaries added yet</p>
                         ) : (
                             formData.beneficiaries.map((beneficiary, index) => 
-                            renderPersonForm(beneficiary, 'beneficiaries', index, 'Beneficiary')
+                            renderPersonForm(beneficiary, 'beneficiaries', index, 'Beneficiary', formErrors)
                             )
                         )}
                     </div>
@@ -57,6 +57,7 @@ BeneficiariesForm.propTypes = {
     formData: PropTypes.object.isRequired,
     addPersonToArray: PropTypes.func.isRequired,
     renderPersonForm: PropTypes.func.isRequired,
+    formErrors: PropTypes.object,
 }
 
 export default BeneficiariesForm;

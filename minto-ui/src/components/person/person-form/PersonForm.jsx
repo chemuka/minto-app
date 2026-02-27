@@ -352,6 +352,7 @@ const PersonForm = (props) => {
                         updateContactForPerson={updateContactForPerson} 
                         removeContactForPerson={removeContactForPerson} 
                         addContactForPerson={addContactForPerson} 
+                        formErrors={formErrors}
                     />  
                 </div>
             </div>

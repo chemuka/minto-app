@@ -35,5 +35,17 @@ export const  validators = {
         validators.minLen(2)(value) || validators.trim(value),
 
     optionalString: (len) => (value) =>
-        value === undefined || value === null || value === "" ? "" : validators.minLen(len)(value)
+        value === undefined || value === null || value === "" ? "" : validators.minLen(len)(value),
+
+    number: (value) =>
+        value && typeof value === 'number' && Number.isFinite(value) ? "" : "Must be a number!",
+
+    minNumber: (min) => (value) =>
+        value && value >= min ? "" : `Must be greater than or equal to ${min}`,
+
+    maxNumber: (max) => (value) =>
+        value && value <= max ? "" : `Must be less than or equal to ${max}`,
+
+    percentage: (value) =>
+        validators.required(value) || validators.number(value) || validators.minNumber(0)(value) || validators.maxNumber(100)(value),
 };

@@ -2,7 +2,7 @@ import { PersonCheck, PersonCheckFill, Plus } from 'react-bootstrap-icons'
 import PropTypes from 'prop-types';
 
 const RefereesForm = (props) => {
-    const { formData, addPersonToArray, renderPersonForm } = props;
+    const { formData, addPersonToArray, renderPersonForm, formErrors } = props;
 
     return (
         <>
@@ -43,7 +43,7 @@ const RefereesForm = (props) => {
                             <p className="text-secondary text-center py-4">No referees added yet</p>
                         ) : (
                             formData.referees.map((referee, index) => 
-                            renderPersonForm(referee, 'referees', index, 'Referee')
+                            renderPersonForm(referee, 'referees', index, 'Referee', formErrors)
                             )
                         )}
                     </div>
@@ -57,6 +57,7 @@ RefereesForm.propTypes = {
     formData: PropTypes.object.isRequired,
     addPersonToArray: PropTypes.func.isRequired,
     renderPersonForm: PropTypes.func.isRequired,
+    formErrors: PropTypes.object,
 }
 
 export default RefereesForm

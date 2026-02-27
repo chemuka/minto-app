@@ -632,8 +632,8 @@ const DraftApplication = (props) => {
             addressErrors.addressType = validators.required(address.addressType);
             addressErrors.street = validators.street(address.street);
             addressErrors.city = validators.required(address.city);
-            addressErrors.state = validators.optionalString(address.state);
-            addressErrors.zipcode = validators.optionalString(address.zipcode);
+            addressErrors.state = validators.optionalString(2)(address.state);
+            addressErrors.zipcode = validators.optionalString(3)(address.zipcode);
             addressErrors.country = validators.required(address.country);
             person.contact.addresses[index] = addressErrors;
         });
@@ -693,7 +693,7 @@ const DraftApplication = (props) => {
             // Emails validation
             formData.person.contact.emails.forEach((email, index) => {
                 let emailErrors = { emailType: '', address: ''};
-                emailErrors.emailType = validators.required(email.emailType) || validators.required(email.emailType);
+                emailErrors.emailType = validators.required(email.emailType);
                 emailErrors.address = validators.email(email.address);
                 e.person.contact.emails[index] = emailErrors;
             });
@@ -780,8 +780,8 @@ const DraftApplication = (props) => {
             formData.beneficiaries.forEach((beneficiary, index) => {
                 let personErrors = validatePerson(beneficiary);
                 let beneficiaryErrors = { percentage: '', relationship: '', person: {} };
-                beneficiaryErrors.relationship = validators.required(beneficiary.relationship);
-                beneficiaryErrors.percentage = validators.membershipNumber(beneficiary.percentage);
+                beneficiaryErrors.relationship = validators.name(beneficiary.relationship);
+                beneficiaryErrors.percentage = validators.percentage(beneficiary.percentage);
                 beneficiaryErrors.person = personErrors;
                 e.beneficiaries[index] = beneficiaryErrors;
             })
@@ -845,6 +845,7 @@ const DraftApplication = (props) => {
                 formData={formData}
                 addPersonToArray={addPersonToArray}
                 renderPersonForm={renderPersonForm}
+                formErrors={formErrors}
              />
         )
     }
@@ -856,6 +857,7 @@ const DraftApplication = (props) => {
                 formData={formData}
                 addPersonToArray={addPersonToArray}
                 renderPersonForm={renderPersonForm}
+                formErrors={formErrors}
              />
         )
     }
@@ -867,6 +869,7 @@ const DraftApplication = (props) => {
                 formData={formData}
                 addPersonToArray={addPersonToArray}
                 renderPersonForm={renderPersonForm}
+                formErrors={formErrors}
             />
         )
     }
@@ -878,6 +881,7 @@ const DraftApplication = (props) => {
                 formData={formData}
                 addPersonToArray={addPersonToArray}
                 renderPersonForm={renderPersonForm}
+                formErrors={formErrors}
              />
         )
     }
@@ -889,6 +893,7 @@ const DraftApplication = (props) => {
                 formData={formData}
                 addPersonToArray={addPersonToArray}
                 renderPersonForm={renderPersonForm}
+                formErrors={formErrors}
             />
         )
     }

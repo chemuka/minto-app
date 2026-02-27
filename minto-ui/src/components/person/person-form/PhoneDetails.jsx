@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import countriesData from '../../../assets/data/countries.json';
 
 const PhoneDetails = (props) => {
-    const { index, title, arrayName, person, updateContactForPerson, removeContactForPerson, addContactForPerson } = props;
+    const { index, title, arrayName, person, updateContactForPerson, removeContactForPerson, 
+        addContactForPerson, formErrors } = props;
     
     return (
         <>
@@ -47,6 +48,14 @@ const PhoneDetails = (props) => {
                                     </select>
                                     <label htmlFor={`${arrayName}-${index}-phone-type`}>Type</label>
                                 </div>
+                                { 
+                                    formErrors[arrayName].length > 0 &&
+                                    formErrors[arrayName][index].person.contact.phones.length > 0 && 
+                                    formErrors[arrayName][index].person.contact.phones[phoneIndex].phoneType && 
+                                    <div className="text-danger mt-1">
+                                        { formErrors[arrayName][index].person.contact.phones[phoneIndex].phoneType }
+                                    </div>
+                                }
                             </div>
                         </div>
                         <div className="form-group row">
@@ -68,6 +77,14 @@ const PhoneDetails = (props) => {
                                     </select>
                                     <label htmlFor={`${arrayName}-${index}-phone-country-code`}>Country Code</label>
                                 </div>
+                                { 
+                                    formErrors[arrayName].length > 0 &&
+                                    formErrors[arrayName][index].person.contact.phones.length > 0 && 
+                                    formErrors[arrayName][index].person.contact.phones[phoneIndex].countryCode && 
+                                    <div className="text-danger mt-1">
+                                        { formErrors[arrayName][index].person.contact.phones[phoneIndex].countryCode }
+                                    </div>
+                                }
                             </div>
                             <div className="col-sm-6 mb-3">
                                 <div className="form-floating">
@@ -81,6 +98,14 @@ const PhoneDetails = (props) => {
                                     />
                                     <label htmlFor={`${arrayName}-${index}-phone-number`}>Phone Number</label>
                                 </div>
+                                { 
+                                    formErrors[arrayName].length > 0 &&
+                                    formErrors[arrayName][index].person.contact.phones.length > 0 && 
+                                    formErrors[arrayName][index].person.contact.phones[phoneIndex].number && 
+                                    <div className="text-danger mt-1">
+                                        { formErrors[arrayName][index].person.contact.phones[phoneIndex].number }
+                                    </div>
+                                }
                             </div>
                             {person.contact.phones.length >= 1 && (
                                 <div className="col-sm-1 mb-3 mt-1">
@@ -109,7 +134,114 @@ PhoneDetails.propTypes = {
     person: PropTypes.object.isRequired,
     updateContactForPerson: PropTypes.func.isRequired,
     removeContactForPerson: PropTypes.func.isRequired,
-    addContactForPerson: PropTypes.func.isRequired
+    addContactForPerson: PropTypes.func.isRequired,
+    formErrors: PropTypes.shape({
+        maritalStatus: PropTypes.string,
+        applicationStatus: PropTypes.string,
+        person: PropTypes.shape({
+            firstName: PropTypes.string,
+            middleName: PropTypes.string,
+            lastName: PropTypes.string,
+            dob: PropTypes.string,
+            lifeStatus: PropTypes.string,
+            contact: PropTypes.shape({
+                addresses: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        street: PropTypes.string,
+                        city: PropTypes.string,
+                        state: PropTypes.string,
+                        zipcode: PropTypes.string,
+                        country: PropTypes.string,
+                    })
+                ),
+                emails: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        emailType: PropTypes.string,
+                        address: PropTypes.string,
+                    })
+                ),
+                phones: PropTypes.arrayOf(
+                    PropTypes.shape({
+                        phoneType: PropTypes.string,
+                        countryCode: PropTypes.string,
+                        number: PropTypes.string,
+                    })
+                ),
+            }),
+        }),
+        spouses: PropTypes.arrayOf(
+            PropTypes.shape({
+                maritalStatus: PropTypes.string,
+                person: PropTypes.shape({
+                    firstName: PropTypes.string,
+                    middleName: PropTypes.string,
+                    lastName: PropTypes.string,
+                    dob: PropTypes.string,
+                    lifeStatus: PropTypes.string,
+                    contact: PropTypes.shape({
+                        addresses: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                street: PropTypes.string,
+                                city: PropTypes.string,
+                                state: PropTypes.string,
+                                zipcode: PropTypes.string,
+                                country: PropTypes.string,
+                            })
+                        ),
+                        emails: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                emailType: PropTypes.string,
+                                address: PropTypes.string,
+                            })
+                        ),
+                        phones: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                phoneType: PropTypes.string,
+                                countryCode: PropTypes.string,
+                                number: PropTypes.string,
+                            })
+                        ),
+                    }),
+                }),
+            })
+        ),
+        children: PropTypes.arrayOf(
+            PropTypes.shape({
+                childType: PropTypes.string,
+                person: PropTypes.shape({
+                    firstName: PropTypes.string,
+                    middleName: PropTypes.string,
+                    lastName: PropTypes.string,
+                    dob: PropTypes.string,
+                    lifeStatus: PropTypes.string,
+                    contact: PropTypes.shape({
+                        addresses: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                street: PropTypes.string,
+                                city: PropTypes.string,
+                                state: PropTypes.string,
+                                zipcode: PropTypes.string,
+                                country: PropTypes.string,
+                            })
+                        ),
+                        emails: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                emailType: PropTypes.string,
+                                address: PropTypes.string,
+                            })
+                        ),
+                        phones: PropTypes.arrayOf(
+                            PropTypes.shape({
+                                phoneType: PropTypes.string,
+                                countryCode: PropTypes.string,
+                                number: PropTypes.string,
+                            })
+                        ),
+                    }),
+                }),
+            })
+        ),
+    }),
 }
 
 export default PhoneDetails
