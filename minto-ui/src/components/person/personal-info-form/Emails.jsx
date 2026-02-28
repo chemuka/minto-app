@@ -1,58 +1,31 @@
 import { EnvelopeAt, Plus, Trash } from "react-bootstrap-icons"
 import PropTypes from 'prop-types'
-import { useState } from "react";
+import { validators } from "../../validate/validators";
 
 const Emails = (props) => {
-    const { formData, updateContact, addContact, removeContact, formErrors } = props;
-    const [errors, setErrors] = useState([])
-
-    const validateEmailField = (index, field) => {
-        let isValid = true
-        let newErrors = [ ...errors ]
-        let emailError = { ...(newErrors[index] || {}) }
-        const email = formData.person.contact.emails[index]
-        if (field === 'emailType') {
-            if (!email.emailType) {
-                emailError.emailType = 'Email type is required!';
-                isValid = false
-            } else if (email.emailType.trim() !== email.emailType) {
-                emailError.emailType = 'Email type cannot have leading or trailing spaces!';
-                isValid = false
-            }   
-        } else if (field === 'address') {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;    
-            if (!email.address) {
-                emailError.address = 'Email address is required!';
-                isValid = false
-            } else if (email.address.trim() !== email.address) {
-                emailError.address = 'Email address cannot have leading or trailing spaces!';
-                isValid = false
-            } else if (email.address.length < 5) {
-                emailError.address = 'Email address must be at least 5 characters long!';
-                isValid = false
-            } else if (email.address.length > 254) {
-                emailError.address = 'Email address cannot exceed 254 characters!';
-                isValid = false
-            } else if (!emailRegex.test(email.address)) {
-                emailError.address = 'Invalid email address format!';
-                isValid = false
-            }
+    const { formData, updateContact, addContact, deleteContact, formErrors, setFormErrors } = props;
+    
+    const handleValidate = (index, field, value) => {
+        let errorValue = ''
+        if(field === 'emailType') {
+            errorValue = validators.required(value)
         }
-        newErrors[index] = emailError
-        return { isValid, newErrors }
-    }
-
-    const handleValidate = (index, field) => {
-        const {isValid, newErrors} = validateEmailField(index, field)
-        if (!isValid) {
-            setErrors(newErrors)
-        } else {
-            // Clear error for this field if validation passes
-            if (newErrors[index]) {
-                delete newErrors[index][field]
-            }
-            setErrors(newErrors)
+        if(field === 'address') {
+            errorValue = validators.email(value)
         }
+        
+        setFormErrors(prev => ({
+            ...prev, 
+            person: {
+                ...prev.person, 
+                contact: { 
+                    ...prev.person.contact,
+                    emails: prev.person.contact.emails.map((contact, i) =>
+                        i === index ? { ...contact, [field]: errorValue } : contact
+                    )
+                }
+            }
+        }))
     }
 
     return (
@@ -86,7 +59,7 @@ const Emails = (props) => {
                                     <select
                                         id={`email-type-${index}`}
                                         value={email.emailType || ''}
-                                        onBlur={() => handleValidate(index, 'emailType')}
+                                        onBlur={(e) => handleValidate(index, 'emailType', e.target.value)}
                                         onChange={(e) => updateContact('emails', index, 'emailType', e.target.value)}
                                         className="form-select"
                                         required
@@ -110,7 +83,7 @@ const Emails = (props) => {
                                         type={"email"}
                                         placeholder="Email Address"
                                         value={email.address || ''}
-                                        onBlur={() => handleValidate(index, 'address')}
+                                        onBlur={(e) => handleValidate(index, 'address', e.target.value)}
                                         onChange={(e) => updateContact('emails', index, 'address', e.target.value)}
                                         className="form-control"
                                         required
@@ -125,7 +98,7 @@ const Emails = (props) => {
                                 <div className="col-sm-1 mb-3 mt-1">
                                     <button
                                         type="button"
-                                        onClick={() => removeContact('emails', index)}
+                                        onClick={() => deleteContact('emails', index)}
                                         className="bg-light text-danger"
                                         title={`Remove Email ${index + 1}`}
                                     >
@@ -145,43 +118,9 @@ Emails.propTypes = {
     formData: PropTypes.object,
     updateContact: PropTypes.func,
     addContact: PropTypes.func,
-    removeContact: PropTypes.func,
-    formErrors: PropTypes.shape({
-        person: PropTypes.shape({
-            firstName: PropTypes.string,
-            middleName: PropTypes.string,
-            lastName: PropTypes.string,
-            dob: PropTypes.string,
-            lifeStatus: PropTypes.string,
-            maritalStatus: PropTypes.string,
-            applicationStatus: PropTypes.string,
-            contact: PropTypes.shape({
-                addresses: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        addressType: PropTypes.string,
-                        street: PropTypes.string,
-                        city: PropTypes.string,
-                        state: PropTypes.string,
-                        zipcode: PropTypes.string,
-                        country: PropTypes.string,
-                    })
-                ),
-                emails: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        emailType: PropTypes.string,
-                        address: PropTypes.string,
-                    })
-                ),
-                phones: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        phoneType: PropTypes.string,
-                        countryCode: PropTypes.string,
-                        number: PropTypes.string,
-                    })
-                ),
-            }),
-        }),
-    }),
+    deleteContact: PropTypes.func,
+    formErrors: PropTypes.object,
+    setFormErrors: PropTypes.func,
 }
 
 export default Emails

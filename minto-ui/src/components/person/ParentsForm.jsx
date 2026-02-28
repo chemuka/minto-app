@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 const ParentsForm = (props) => {
     const { formData, addPersonToArray, renderPersonForm, formErrors } = props;
+
     return (
         <>
             <div className='card'>

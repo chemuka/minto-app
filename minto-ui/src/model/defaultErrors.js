@@ -1,4 +1,3 @@
-
 export const defaultErrors = {
     applicationStatus: "",
     maritalStatus: "",

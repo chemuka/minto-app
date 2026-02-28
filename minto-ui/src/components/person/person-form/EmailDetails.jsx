@@ -1,10 +1,43 @@
 import { EnvelopeAt, Plus, Trash } from 'react-bootstrap-icons';
 import PropTypes from 'prop-types';
+import { validators } from '../../validate/validators';
 
 const EmailDetails = (props) => {
-    const { index, title, arrayName, person, updateContactForPerson, removeContactForPerson, 
-        addContactForPerson, formErrors } = props;
+    const { index, title, arrayName, person, updateContactForPerson, deleteContactForPerson, 
+        addContactForPerson, formErrors, setFormErrors } = props;
     
+    const handleValidate = (arrayName, personIndex, contactIndex, field, value) => {
+        let contactType = 'emails'
+        let errorValue = ''
+        if(field === 'emailType') {
+            errorValue = validators.required(value)
+        }
+        if(field === 'address') {
+            errorValue = validators.email(value)
+        }
+        
+        setFormErrors(prev => ({
+            ...prev,
+            [arrayName]: prev[arrayName].map((entry, i) => {
+                if (i === personIndex) {
+                    let personObj = entry.person;
+                    return {
+                        ...entry,
+                        person: {
+                            ...personObj,
+                            contact: {
+                                ...personObj.contact,
+                                [contactType]: personObj.contact[contactType].map((contact, j) =>
+                                    j === contactIndex ? { ...contact, [field]: errorValue } : contact
+                                )
+                            }
+                        }
+                    }
+                }
+            })
+        }))
+    }
+
     return (
         <>
             <div className="container py-6 px-1 px-sm-6 mb-4 rounded-lg">
@@ -36,6 +69,7 @@ const EmailDetails = (props) => {
                                     <select
                                         id={`${arrayName}-${index}-email-type`}
                                         value={email.emailType || ''}
+                                        onBlur={(e) => handleValidate(arrayName, index, emailIndex, 'emailType', e.target.value)}
                                         onChange={(e) => updateContactForPerson(arrayName, index, 'emails', emailIndex, 'emailType', e.target.value)}
                                         className="form-select"
                                     >
@@ -45,7 +79,7 @@ const EmailDetails = (props) => {
                                         <option value="School">School</option>
                                         <option value="Other">Other</option>
                                     </select>
-                                    <label htmlFor={`${arrayName}-${index}-email-type`}>Type</label>
+                                    <label htmlFor={`${arrayName}-${index}-email-type`}>Type*</label>
                                 </div>
                                 { 
                                     formErrors[arrayName].length > 0 && 
@@ -63,10 +97,11 @@ const EmailDetails = (props) => {
                                         type={"email"}
                                         placeholder="Email Address"
                                         value={email.address || ''}
+                                        onBlur={(e) => handleValidate(arrayName, index, emailIndex, 'address', e.target.value)}
                                         onChange={(e) => updateContactForPerson(arrayName, index, 'emails', emailIndex, 'address', e.target.value)}
                                         className="form-control"
                                     />
-                                    <label htmlFor={`${arrayName}-${index}-email-address`}>Email Address</label>
+                                    <label htmlFor={`${arrayName}-${index}-email-address`}>Email Address*</label>
                                 </div>
                                 { 
                                     formErrors[arrayName].length > 0 &&
@@ -81,7 +116,7 @@ const EmailDetails = (props) => {
                                 <div className="col-sm-1 mb-3 mt-1">
                                     <button
                                         type="button"
-                                        onClick={() => removeContactForPerson(arrayName, index, 'emails', emailIndex)}
+                                        onClick={() => deleteContactForPerson(arrayName, index, 'emails', emailIndex)}
                                         className="bg-light text-danger"
                                         title={`Remove Email ${emailIndex + 1} for ${title} ${index + 1}`}
                                     >
@@ -103,115 +138,10 @@ EmailDetails.propTypes = {
     arrayName: PropTypes.string.isRequired,
     person: PropTypes.object.isRequired,
     updateContactForPerson: PropTypes.func.isRequired,
-    removeContactForPerson: PropTypes.func.isRequired,
+    deleteContactForPerson: PropTypes.func.isRequired,
     addContactForPerson: PropTypes.func.isRequired,
-    formErrors: PropTypes.shape({
-        maritalStatus: PropTypes.string,
-        applicationStatus: PropTypes.string,
-        person: PropTypes.shape({
-            firstName: PropTypes.string,
-            middleName: PropTypes.string,
-            lastName: PropTypes.string,
-            dob: PropTypes.string,
-            lifeStatus: PropTypes.string,
-            contact: PropTypes.shape({
-                addresses: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        street: PropTypes.string,
-                        city: PropTypes.string,
-                        state: PropTypes.string,
-                        zipcode: PropTypes.string,
-                        country: PropTypes.string,
-                    })
-                ),
-                emails: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        emailType: PropTypes.string,
-                        address: PropTypes.string,
-                    })
-                ),
-                phones: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        phoneType: PropTypes.string,
-                        countryCode: PropTypes.string,
-                        number: PropTypes.string,
-                    })
-                ),
-            }),
-        }),
-        spouses: PropTypes.arrayOf(
-            PropTypes.shape({
-                maritalStatus: PropTypes.string,
-                person: PropTypes.shape({
-                    firstName: PropTypes.string,
-                    middleName: PropTypes.string,
-                    lastName: PropTypes.string,
-                    dob: PropTypes.string,
-                    lifeStatus: PropTypes.string,
-                    contact: PropTypes.shape({
-                        addresses: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                street: PropTypes.string,
-                                city: PropTypes.string,
-                                state: PropTypes.string,
-                                zipcode: PropTypes.string,
-                                country: PropTypes.string,
-                            })
-                        ),
-                        emails: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                emailType: PropTypes.string,
-                                address: PropTypes.string,
-                            })
-                        ),
-                        phones: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                phoneType: PropTypes.string,
-                                countryCode: PropTypes.string,
-                                number: PropTypes.string,
-                            })
-                        ),
-                    }),
-                }),
-            })
-        ),
-        children: PropTypes.arrayOf(
-            PropTypes.shape({
-                childType: PropTypes.string,
-                person: PropTypes.shape({
-                    firstName: PropTypes.string,
-                    middleName: PropTypes.string,
-                    lastName: PropTypes.string,
-                    dob: PropTypes.string,
-                    lifeStatus: PropTypes.string,
-                    contact: PropTypes.shape({
-                        addresses: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                street: PropTypes.string,
-                                city: PropTypes.string,
-                                state: PropTypes.string,
-                                zipcode: PropTypes.string,
-                                country: PropTypes.string,
-                            })
-                        ),
-                        emails: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                emailType: PropTypes.string,
-                                address: PropTypes.string,
-                            })
-                        ),
-                        phones: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                phoneType: PropTypes.string,
-                                countryCode: PropTypes.string,
-                                number: PropTypes.string,
-                            })
-                        ),
-                    }),
-                }),
-            })
-        ),
-    }),
+    formErrors: PropTypes.object,
+    setFormErrors: PropTypes.func,
 }
 
 export default EmailDetails

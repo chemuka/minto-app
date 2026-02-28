@@ -2,93 +2,32 @@ import { GeoAlt, Plus, Trash } from 'react-bootstrap-icons';
 import PropTypes from 'prop-types';
 import countriesData from '../../../assets/data/countries.json';
 import { useState } from 'react';
+import { validators } from '../../validate/validators';
 
 const Addresses = (props) => {
-    const { formData, updateContact, addContact, removeContact, formErrors } = props;
-    const [errors, setErrors] = useState([])
+    const { formData, updateContact, addContact, deleteContact, formErrors, setFormErrors } = props;
 
-    const validateAddressField = (index, field) => {    
-        let isValid = true
-        let newErrors = [ ...errors ]
-        let addressError = { ...(newErrors[index] || {}) }
-        const address = formData.person.contact.addresses[index]
-        if (field === 'addressType') {
-            if (!address.addressType) {
-                addressError.addressType = 'Address type is required!';
-                isValid = false
-            } else if (address.addressType.trim() === '') {
-                addressError.addressType = 'Address type cannot be empty!';
-                isValid = false
-            } else if (address.addressType.trim() !== address.addressType) {
-                addressError.addressType = 'Address type cannot have leading or trailing spaces!';
-                isValid = false
-            }
-        } else if (field === 'street') {
-            if (!address.street) {
-                addressError.street = 'Street is required!';
-                isValid = false
-            } else if (address.street.trim() !== address.street) {
-                addressError.street = 'Street cannot have leading or trailing spaces!';
-                isValid = false
-            } else if (address.street.length < 5) {
-                addressError.street = 'Street address must be at least 5 characters!';
-                isValid = false
-            }
-        } else if (field === 'city') {
-            if (!address.city) {
-                addressError.city = 'City is required!';
-                isValid = false
-            } else if (address.city.trim() !== address.city) {
-                addressError.city = 'City cannot have leading or trailing spaces!';
-                isValid = false
-            } else if (address.city.length < 2) {
-                addressError.city = 'City must be at least 2 characters!';
-                isValid = false
-            }
-        } else if (field === 'state') {
-            if (address.state && address.state.trim() !== address.state) {
-                addressError.state = 'State cannot have leading or trailing spaces!';
-                isValid = false
-            } else if (address.state && address.state.length < 2) {
-                addressError.state = 'State must be at least 2 characters!';
-                isValid = false
-            }
-        } else if (field === 'zipcode') {
-            if (address.zipcode && address.zipcode.trim() !== address.zipcode) {
-                addressError.zipcode = 'Zipcode cannot have leading or trailing spaces!';
-                isValid = false
-            }
-        } else if (field === 'country') {
-            if (!address.country) {
-                addressError.country = 'Country is required!';
-                isValid = false
-            } else if (address.country.trim() !== address.country) {
-                addressError.country = 'Country cannot have leading or trailing spaces!';
-                isValid = false
-            } else if (!countriesData.some(country => country.name === address.country)) {
-                addressError.country = 'Please select a valid country!';
-                isValid = false
-            }
-        } else {
-            console.warn(`Unknown field "${field}" for address validation`)
-        }
+    const handleValidate = (index, field, value) => {
+        let errorValue = ''
+        if (field === 'addressType') { errorValue = validators.required(value) }
+        if (field === 'street') { errorValue = validators.street(value) }
+        if (field === 'city') { errorValue = validators.required(value) }
+        if (field === 'state') { errorValue = validators.optionalString(2)(value) }
+        if (field === 'zipcode') { errorValue = validators.optionalString(3)(value) }
+        if (field === 'country') { errorValue = validators.required(value) }
 
-        newErrors[index] = addressError
-        return { isValid, newErrors }
-    }
-
-    const handleValidate = (index, field) => {
-        const {isValid, newErrors} = validateAddressField(index, field)
-        console.log('newErrors after validation:', newErrors)
-        if (!isValid) {
-            setErrors(newErrors)
-        } else {
-            // Clear error for this field if validation passes
-            if (newErrors[index]) {
-                delete newErrors[index][field]
-                setErrors(newErrors)
+        setFormErrors(prev => ({
+            ...prev, 
+            person: {
+                ...prev.person, 
+                contact: { 
+                    ...prev.person.contact,
+                    addresses: prev.person.contact.addresses.map((contact, i) =>
+                        i === index ? { ...contact, [field]: errorValue } : contact
+                    )
+                }
             }
-        }
+        }))
     }
 
     return (
@@ -118,7 +57,7 @@ const Addresses = (props) => {
                             {formData.person.contact.addresses.length >= 1 && (
                             <button
                                 type="button"
-                                onClick={() => removeContact('addresses', index)}
+                                onClick={() => deleteContact('addresses', index)}
                                 className="bg-light text-danger p-2"
                                 title={`Remove Address ${index + 1}`}
                             >
@@ -133,7 +72,7 @@ const Addresses = (props) => {
                                     <select
                                         id={`address-type-${index}`}
                                         value={address.addressType || ''}
-                                        onBlur={() => handleValidate(index, 'addressType')}
+                                        onBlur={(e) => handleValidate(index, 'addressType', e.target.value)}
                                         onChange={(e) => updateContact('addresses', index, 'addressType', e.target.value)}
                                         className="form-select"
                                         required
@@ -159,7 +98,7 @@ const Addresses = (props) => {
                                         type={"text"}
                                         placeholder="Street Address"
                                         value={address.street || ''}
-                                        onBlur={() => handleValidate(index, 'street')}
+                                        onBlur={(e) => handleValidate(index, 'street', e.target.value)}
                                         onChange={(e) => updateContact('addresses', index, 'street', e.target.value)}
                                         className="form-control"
                                         required
@@ -179,7 +118,7 @@ const Addresses = (props) => {
                                         type={"text"}
                                         placeholder="City"
                                         value={address.city || ''}
-                                        onBlur={() => handleValidate(index, 'city')}
+                                        onBlur={(e) => handleValidate(index, 'city', e.target.value)}
                                         onChange={(e) => updateContact('addresses', index, 'city', e.target.value)}
                                         className="form-control"
                                         required
@@ -197,7 +136,7 @@ const Addresses = (props) => {
                                         type={"text"}
                                         placeholder="State"
                                         value={address.state || ''}
-                                        onBlur={() => handleValidate(index, 'state')}
+                                        onBlur={(e) => handleValidate(index, 'state', e.target.value)}
                                         onChange={(e) => updateContact('addresses', index, 'state', e.target.value)}
                                         className="form-control"
                                     />
@@ -216,7 +155,7 @@ const Addresses = (props) => {
                                         type={"text"}
                                         placeholder="ZIP Code"
                                         value={address.zipcode || ''}
-                                        onBlur={() => handleValidate(index, 'zipcode')}
+                                        onBlur={(e) => handleValidate(index, 'zipcode', e.target.value)}
                                         onChange={(e) => updateContact('addresses', index, 'zipcode', e.target.value)}
                                         className="form-control"
                                     />
@@ -233,7 +172,7 @@ const Addresses = (props) => {
                                         name={`country-${index}`}
                                         className="form-select"
                                         value={address.country || ''}
-                                        onBlur={() => handleValidate(index, 'country')}
+                                        onBlur={(e) => handleValidate(index, 'country', e.target.value)}
                                         onChange={(e) => updateContact('addresses', index, 'country', e.target.value)}
                                         required
                                     >
@@ -262,43 +201,9 @@ Addresses.propTypes = {
     formData: PropTypes.object,
     updateContact: PropTypes.func,
     addContact: PropTypes.func,
-    removeContact: PropTypes.func,
-    formErrors: PropTypes.shape({
-        person: PropTypes.shape({
-            firstName: PropTypes.string,
-            middleName: PropTypes.string,
-            lastName: PropTypes.string,
-            dob: PropTypes.string,
-            lifeStatus: PropTypes.string,
-            maritalStatus: PropTypes.string,
-            applicationStatus: PropTypes.string,
-            contact: PropTypes.shape({
-                addresses: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        addressType: PropTypes.string,
-                        street: PropTypes.string,
-                        city: PropTypes.string,
-                        state: PropTypes.string,
-                        zipcode: PropTypes.string,
-                        country: PropTypes.string,
-                    })
-                ),
-                emails: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        emailType: PropTypes.string,
-                        address: PropTypes.string,
-                    })
-                ),
-                phones: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        phoneType: PropTypes.string,
-                        countryCode: PropTypes.string,
-                        number: PropTypes.string,
-                    })
-                ),
-            }),
-        }),
-    }),
+    deleteContact: PropTypes.func,
+    formErrors: PropTypes.object,
+    setFormErrors: PropTypes.func,
 }
 
 export default Addresses

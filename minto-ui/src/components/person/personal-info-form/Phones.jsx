@@ -1,89 +1,37 @@
 import { Telephone, Plus, Trash } from "react-bootstrap-icons"
 import PropTypes from 'prop-types'
 import countriesData from '../../../assets/data/countries.json';
-import { useEffect, useState } from "react";
+import { validators } from "../../validate/validators";
 
 const Phones = (props) => {
-    const { formData, updateContact, addContact, removeContact, formErrors } = props;
-    const [errors, setErrors] = useState([])
-
-    useEffect(() => {
-        if (formErrors && formErrors?.formData?.person?.contact?.phones) {
-            setErrors(formErrors.formData.person.contact.phones)
-        }
-    }, [formErrors])
-
-    const validatePhoneField = (index, field) => {
-        let isValid = true
-        let newErrors = [ ...errors ]
-        let phoneError = { ...(newErrors[index] || {}) }
-        const phone = formData.person.contact.phones[index]
-        const CountryCodeRegex = /\p{Regional_Indicator}{2}\s?\+\d{1,4}/u;
-
-        if (field === 'phoneType') {
-            if (phone.phoneType.trim() === '') {
-                phoneError.phoneType = 'Phone type cannot be empty!'; 
-                isValid = false
-            } else if (phone.phoneType.trim() !== phone.phoneType) {
-                phoneError.phoneType = 'Phone type cannot have leading or trailing spaces!';
-                isValid = false
-            }
-        } else if (field === 'number') {
-            if (!phone.number) {
-                phoneError.number = 'Phone number is required!';
-                isValid = false
-            } else if (phone.number.trim() !== phone.number) {
-                phoneError.number = 'Phone number cannot have leading or trailing spaces!';
-                isValid = false
-            } else if (!/^\d+$/.test(phone.number)) {
-                phoneError.number = 'Phone number must contain only digits!';
-                isValid = false
-            } else if (phone.number.length < 7 || phone.number.length > 15) {
-                phoneError.number = 'Phone number must be between 7 and 15 digits!';
-                isValid = false
-            }
-        } else if (field === 'countryCode') {
-            //if (!/^\+\d{1,4}$/.test(phone.countryCode)) { 
-            if (!CountryCodeRegex.test(phone.countryCode)) {
-                phoneError.countryCode = 'Country code must be in format +123!';
-                isValid = false
-            } else if (phone.countryCode.trim() !== phone.countryCode) {
-                phoneError.countryCode = 'Country code cannot have leading or trailing spaces!';
-                isValid = false
-            }
-        }
-        newErrors[index] = phoneError
-        
-        return { isValid, newErrors }
-    }
-
-    const handleValidate = (index, field) => {
-        const {isValid, newErrors} = validatePhoneField(index, field)
-        if (!isValid) {
-            // Update form errors in parent component
-            setFormErrors(prevErrors => ({
-                ...prevErrors,
-                formData: {
-                    ...prevErrors?.formData,
-                    person: {
-                        ...prevErrors?.formData?.person,
-                        contact: {
-                            ...prevErrors?.formData?.person?.contact,
-                            phones: newErrors
-                        }
-                    }
-                }
-            }))
-            setErrors(newErrors)
-        } else {
-            // Clear error for this field if validation passes
-            if (newErrors[index]) {
-                delete newErrors[index][field]
-                setErrors(newErrors)
-            }
-        }
-    }
+    const { formData, updateContact, addContact, deleteContact, formErrors, setFormErrors } = props;
     
+    const handleValidate = (index, field, value) => {
+        let errorValue = ''
+        if(field === 'phoneType') {
+            errorValue = validators.required(value)
+        }
+        if(field === 'countryCode') {
+            errorValue = validators.countryCode(value)
+        }
+        if(field === 'number') {
+            errorValue = validators.phone(value)
+        }
+
+        setFormErrors(prev => ({
+            ...prev, 
+            person: {
+                ...prev.person, 
+                contact: { 
+                    ...prev.person.contact,
+                    phones: prev.person.contact.phones.map((contact, i) =>
+                        i === index ? { ...contact, [field]: errorValue } : contact
+                    )
+                }
+            }
+        }))
+    }
+
     return (
         <>
             <div className="container p-6 mb-4 rounded-lg border">
@@ -115,7 +63,7 @@ const Phones = (props) => {
                                     <select
                                         id={`phone-type-${index}`}
                                         value={phone.phoneType || ''}
-                                        onBlur={() => handleValidate(index, 'phoneType')}
+                                        onBlur={(e) => handleValidate(index, 'phoneType', e.target.value)}
                                         onChange={(e) => updateContact('phones', index, 'phoneType', e.target.value)}
                                         className="form-select"
                                         required
@@ -141,7 +89,7 @@ const Phones = (props) => {
                                         className="form-select"
                                         name={`phone-country-code-${index}`}
                                         value={phone.countryCode || ''}
-                                        onBlur={() => handleValidate(index, 'countryCode')}
+                                        onBlur={(e) => handleValidate(index, 'countryCode', e.target.value)}
                                         onChange={(e) => updateContact('phones', index, 'countryCode', e.target.value)}
                                         required
                                     >
@@ -165,7 +113,7 @@ const Phones = (props) => {
                                         type={"tel"}
                                         placeholder="Phone Number"
                                         value={phone.number || ''}
-                                        onBlur={() => handleValidate(index, 'number')}
+                                        onBlur={(e) => handleValidate(index, 'number', e.target.value)}
                                         onChange={(e) => updateContact('phones', index, 'number', e.target.value)}
                                         className="form-control"
                                         required
@@ -177,16 +125,18 @@ const Phones = (props) => {
                                 )}
                             </div>
                             {formData.person.contact.phones.length >= 1 && (
-                                <div className="col-sm-1 mb-3 mt-1">
-                                    <button
-                                        type="button"
-                                        onClick={() => removeContact('phones', index)}
-                                        className="bg-light text-danger"
-                                        title={`Remove Phone ${index + 1}`}
-                                    >
-                                        <Trash size={24} />
-                                    </button>
-                                </div>
+                                <>
+                                    <div className="col-sm-1 mb-3 mt-1">
+                                        <button
+                                            type="button"
+                                            onClick={() => deleteContact('phones', index)}
+                                            className="bg-light text-danger"
+                                            title={`Remove Phone ${index + 1}`}
+                                        >
+                                            <Trash size={24} />
+                                        </button>
+                                    </div>
+                                </>
                             )}
                         </div>
                     </div>
@@ -200,43 +150,9 @@ Phones.propTypes = {
     formData: PropTypes.object,
     updateContact: PropTypes.func,
     addContact: PropTypes.func,
-    removeContact: PropTypes.func,
-    formErrors: PropTypes.shape({
-        person: PropTypes.shape({
-            firstName: PropTypes.string,
-            middleName: PropTypes.string,
-            lastName: PropTypes.string,
-            dob: PropTypes.string,
-            lifeStatus: PropTypes.string,
-            maritalStatus: PropTypes.string,
-            applicationStatus: PropTypes.string,
-            contact: PropTypes.shape({
-                addresses: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        addressType: PropTypes.string,
-                        street: PropTypes.string,
-                        city: PropTypes.string,
-                        state: PropTypes.string,
-                        zipcode: PropTypes.string,
-                        country: PropTypes.string,
-                    })
-                ),
-                emails: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        emailType: PropTypes.string,
-                        address: PropTypes.string,
-                    })
-                ),
-                phones: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        phoneType: PropTypes.string,
-                        countryCode: PropTypes.string,
-                        number: PropTypes.string,
-                    })
-                ),
-            }),
-        }),
-    }),
+    deleteContact: PropTypes.func,
+    formErrors: PropTypes.object,
+    setFormErrors: PropTypes.func,
 }
 
 export default Phones

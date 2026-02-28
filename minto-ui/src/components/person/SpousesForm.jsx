@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 
 const SpousesForm = (props) => {
     const { formData, addPersonToArray, renderPersonForm, formErrors } = props;
-
-    console.log(`Spouses: `, formErrors)
+    
     return (
         <>
             <div className="container py-6 px-1 px-sm-6 mb-4 rounded-lg border shadow">

@@ -2,81 +2,31 @@ import { PersonFill } from "react-bootstrap-icons"
 import PropTypes from 'prop-types'
 import Contact from "./Contact"
 import { useState } from "react";
+import { validators } from "../../validate/validators";
 
 const PersonalInfoForm = (props) => {
     const { formData, updateFormData, updateMainPerson, updateContact, addContact, 
         removeContact, formErrors, setFormErrors } = props;
-    const [errors, setErrors] = useState({})
-
-    const validateMainPerson = (field) => {
-        let isValid = true
-        let newErrors = { ...errors }
-
-        if (field === 'firstName') {
-            if (!formData.person.firstName || formData.person.firstName.trim() === '') {
-                newErrors.firstName = 'First name is required!'
-                isValid = false
-            } else if (formData.person.firstName.length < 2) {
-                newErrors.firstName = 'First name must be at least 2 characters long!'
-                isValid = false
-            } else if (formData.person.firstName.trim() !== formData.person.firstName) {
-                newErrors.firstName = 'First name cannot have leading or trailing spaces!'
-                isValid = false
-            }
-        } else if (field === 'lastName') {
-            if (!formData.person.lastName || formData.person.lastName.trim() === '') {
-                newErrors.lastName = 'Last name is required!'
-                isValid = false
-            } else if (formData.person.lastName.length < 2) {
-                newErrors.lastName = 'Last name must be at least 2 characters long!'
-                isValid = false
-            } else if (formData.person.lastName.trim() !== formData.person.lastName) {
-                newErrors.lastName = 'Last name cannot have leading or trailing spaces!'
-                isValid = false
-            }
-        } else if (field === 'dob') {
-            if (!formData.person.dob) {
-                newErrors.dob = 'Date of Birth is required!'
-                isValid = false
-            } else {
-                const dobDate = new Date(formData.person.dob)
-                const today = new Date()
-                if (dobDate > today) {
-                    newErrors.dob = 'Date of Birth cannot be in the future!'
-                    isValid = false
-                }
-            }
-        } else if (field === 'lifeStatus') {
-            if (!formData.person.lifeStatus) {
-                newErrors.lifeStatus = 'Life Status is required!'
-                isValid = false
-            }
-        } else if (field === 'maritalStatus') {
-            if (!formData.maritalStatus) {
-                newErrors.maritalStatus = 'Marital Status is required!'
-                isValid = false
-            }
-        } else if (field === 'applicationStatus') {
-            if (!formData.applicationStatus) {
-                newErrors.applicationStatus = 'Application Status is required!'
-                isValid = false
-            }
-        }
-
-        return { isValid, newErrors }
-    }
-
-    const handleValidate = (field) => {   
-        const {isValid, newErrors} = validateMainPerson(field)
-        if (!isValid) {
-            setErrors(newErrors)
+    
+    const handleValidate = (field, value) => {
+        let errorValue = ''
+        if (field === 'firstName') { errorValue = validators.name(value) }
+        if (field === 'middleName') { errorValue = validators.optionalString(2)(value) }
+        if (field === 'lastName') { errorValue = validators.name(value) }
+        if (field === 'dob') { errorValue = validators.required(value) || validators.dob(value) }
+        if (field === 'lifeStatus') { errorValue = validators.required(value) }
+        
+        if (field === 'maritalStatus') { 
+            errorValue = validators.required(value) 
+            setFormErrors(prev => ({ ...prev, maritalStatus: errorValue }))
         } else {
-            // Clear error for this field if validation passes
-            if (newErrors[field]) {
-                const updatedErrors = { ...newErrors }
-                delete updatedErrors[field]
-                setErrors(updatedErrors)
-            }
+            setFormErrors(prev => ({
+                ...prev, 
+                person: {
+                    ...prev.person, 
+                    [field]: errorValue
+                }
+            }))
         }
     }
 
@@ -100,7 +50,7 @@ const PersonalInfoForm = (props) => {
                                     placeholder="First Name"
                                     name="firstName"
                                     value={formData.person.firstName || ''}
-                                    onBlur={() => handleValidate('firstName')}
+                                    onBlur={(e) => handleValidate('firstName', e.target.value)}
                                     onChange={(e) => updateMainPerson('firstName', e.target.value)}
                                     required
                                 />
@@ -117,7 +67,7 @@ const PersonalInfoForm = (props) => {
                                     placeholder="Middle name"
                                     name="middleName"
                                     value={formData.person.middleName || ''}
-                                    onBlur={() => handleValidate('middleName')}
+                                    onBlur={(e) => handleValidate('middleName', e.target.value)}
                                     onChange={(e) => updateMainPerson('middleName', e.target.value)}
                                 />
                                 <label htmlFor={"middleName"}>Middle Name</label>
@@ -133,7 +83,7 @@ const PersonalInfoForm = (props) => {
                                     placeholder="Last name"
                                     name="lastName"
                                     value={formData.person.lastName || ''}
-                                    onBlur={() => handleValidate('lastName')}
+                                    onBlur={(e) => handleValidate('lastName', e.target.value)}
                                     onChange={(e) => updateMainPerson('lastName', e.target.value)}
                                     required
                                 />
@@ -151,7 +101,7 @@ const PersonalInfoForm = (props) => {
                                     className="form-control"
                                     name="dob"
                                     value={formData.person.dob || ''}
-                                    onBlur={() => handleValidate('dob')}
+                                    onBlur={(e) => handleValidate('dob', e.target.value)}
                                     onChange={(e) => updateMainPerson('dob', e.target.value)}
                                     required
                                 />
@@ -166,7 +116,7 @@ const PersonalInfoForm = (props) => {
                                     name="lifeStatus" 
                                     id="lifeStatus"
                                     value={formData.person.lifeStatus || ''}
-                                    onBlur={() => handleValidate('lifeStatus')}
+                                    onBlur={(e) => handleValidate('lifeStatus', e.target.value)}
                                     onChange={(e) => updateMainPerson('lifeStatus', e.target.value)}
                                     required
                                 >
@@ -187,7 +137,7 @@ const PersonalInfoForm = (props) => {
                                     name="maritalStatus" 
                                     id="maritalStatus"
                                     value={formData.maritalStatus || ''}
-                                    onBlur={() => handleValidate('maritalStatus')}
+                                    onBlur={(e) => handleValidate('maritalStatus', e.target.value)}
                                     onChange={(e) => updateFormData('maritalStatus', e.target.value)}
                                     required
                                 >
@@ -249,41 +199,7 @@ PersonalInfoForm.propTypes = {
     addContact: PropTypes.func,
     removeContact: PropTypes.func,
     setFormErrors: PropTypes.func,
-    formErrors: PropTypes.shape({
-        maritalStatus: PropTypes.string,
-        applicationStatus: PropTypes.string,
-        person: PropTypes.shape({
-            firstName: PropTypes.string,
-            middleName: PropTypes.string,
-            lastName: PropTypes.string,
-            dob: PropTypes.string,
-            lifeStatus: PropTypes.string,
-            contact: PropTypes.shape({
-                addresses: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        street: PropTypes.string,
-                        city: PropTypes.string,
-                        state: PropTypes.string,
-                        zipcode: PropTypes.string,
-                        country: PropTypes.string,
-                    })
-                ),
-                emails: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        emailType: PropTypes.string,
-                        address: PropTypes.string,
-                    })
-                ),
-                phones: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        phoneType: PropTypes.string,
-                        countryCode: PropTypes.string,
-                        number: PropTypes.string,
-                    })
-                ),
-            }),
-        }),
-    }),
+    formErrors: PropTypes.object,
 }
 
 export default PersonalInfoForm

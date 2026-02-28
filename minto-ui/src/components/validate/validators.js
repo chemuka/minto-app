@@ -26,7 +26,7 @@ export const  validators = {
         validators.required(value) || validators.minLen(3)(value) || validators.trim(value),
 
     phone: (value) =>
-        validators.required(value) || validators.minLen(7)(value) || validators.maxLen(15)(value) || validators.trim(value),
+        validators.required(value) || validators.minLen(6)(value) || validators.maxLen(15)(value) || validators.trim(value),
 
     membershipNumber: (value) =>
         validators.required(value) || validators.minLen(14)(value) || validators.maxLen(20)(value) || validators.trim(value),

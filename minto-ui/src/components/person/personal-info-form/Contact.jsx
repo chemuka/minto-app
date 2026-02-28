@@ -3,9 +3,32 @@ import PropTypes from 'prop-types';
 import Addresses from './Addresses';
 import Emails from './Emails';
 import Phones from './Phones';
+import ConfirmationModal from '../../misc/modals/ConfirmationModal';
+import useConfirmation from '../../hooks/useConfirmation';
+import { toast } from 'sonner';
 
 const Contact = (props) => {
     const { formData, updateContact, addContact, removeContact, formErrors, setFormErrors } = props;
+    const { show, confirmMsg, showConfirmation, handleConfirm, handleCancel } = useConfirmation()
+
+    const deleteContact = async (contactType, index) => {
+        const typeStr = contactType === 'addresses' ? 'address' 
+            : contactType === 'emails' ? 'email' 
+            : 'phone';
+        const confirmation = await showConfirmation(`Are you sure you want to delete this ${typeStr} record?`)
+        if(confirmation) {
+            removeContact(contactType, index);
+            console.log(`${typeStr} record deleted!.`)
+            toast.info("Delete successful!", {
+                description: `${typeStr} record deleted.`,
+            })
+        } else {
+            console.log(`Delete Aborted! Continue working on the ${typeStr} record.`)
+            toast.info(`Delete -> Aborted!`, {
+                description: `Continue working on the ${typeStr} record.`,
+            })
+        }
+    }
 
     return (
         <>
@@ -21,28 +44,35 @@ const Contact = (props) => {
                         formData={formData} 
                         updateContact={updateContact} 
                         addContact={addContact} 
-                        removeContact={removeContact}
+                        deleteContact={deleteContact}
                         formErrors={formErrors}
                         setFormErrors={setFormErrors}
-                    />   
+                    />
                     
                     <Emails 
                         formData={formData} 
                         updateContact={updateContact} 
                         addContact={addContact} 
-                        removeContact={removeContact}
+                        deleteContact={deleteContact}
                         formErrors={formErrors}
                         setFormErrors={setFormErrors}
-                    />  
+                    />
 
                     <Phones 
                         formData={formData} 
                         updateContact={updateContact} 
                         addContact={addContact} 
-                        removeContact={removeContact}
+                        deleteContact={deleteContact}
                         formErrors={formErrors}
                         setFormErrors={setFormErrors}
-                    />  
+                    />
+
+                <ConfirmationModal
+                    show={show}
+                    message={confirmMsg}
+                    onConfirm={handleConfirm}
+                    onCancel={handleCancel}
+                />
                 </div>
             </div>
         </>
@@ -55,43 +85,7 @@ Contact.propTypes = {
     addContact: PropTypes.func,
     removeContact: PropTypes.func,
     setFormErrors: PropTypes.func,
-    formErrors: PropTypes.shape({
-        formData: PropTypes.shape({
-            person: PropTypes.shape({
-                firstName: PropTypes.string,
-                middleName: PropTypes.string,
-                lastName: PropTypes.string,
-                dob: PropTypes.string,
-                lifeStatus: PropTypes.string,
-                maritalStatus: PropTypes.string,
-                applicationStatus: PropTypes.string,
-                contact: PropTypes.shape({
-                    addresses: PropTypes.arrayOf(
-                        PropTypes.shape({
-                            street: PropTypes.string,
-                            city: PropTypes.string,
-                            state: PropTypes.string,
-                            zipcode: PropTypes.string,
-                            country: PropTypes.string,
-                        })
-                    ),
-                    emails: PropTypes.arrayOf(
-                        PropTypes.shape({
-                            emailType: PropTypes.string,
-                            address: PropTypes.string,
-                        })
-                    ),
-                    phones: PropTypes.arrayOf(
-                        PropTypes.shape({
-                            phoneType: PropTypes.string,
-                            countryCode: PropTypes.string,
-                            number: PropTypes.string,
-                        })
-                    ),
-                }),
-            }),
-        }),
-    }),
+    formErrors: PropTypes.object,
 }
 
 export default Contact

@@ -3,10 +3,33 @@ import PropTypes from 'prop-types';
 import AddressDetails from './AddressDetails';
 import EmailDetails from './EmailDetails';
 import PhoneDetails from './PhoneDetails';
+import ConfirmationModal from '../../misc/modals/ConfirmationModal';
+import useConfirmation from '../../hooks/useConfirmation';
+import { toast } from 'sonner';
 
 const ContactDetails = (props) => {
     const { index, title, arrayName, person, updateContactForPerson, removeContactForPerson, 
-        addContactForPerson, formErrors } = props;
+        addContactForPerson, formErrors, setFormErrors } = props;
+    const { show, confirmMsg, showConfirmation, handleConfirm, handleCancel } = useConfirmation()
+    
+    const deleteContactForPerson = async (arrayName, index, contactType, contactIndex) => {
+        const typeStr = contactType === 'addresses' ? 'address' 
+            : contactType === 'emails' ? 'email' 
+            : 'phone';
+        const confirmation = await showConfirmation(`Are you sure you want to delete this ${typeStr} record?`)
+        if(confirmation) {
+            removeContactForPerson(arrayName, index, contactType, contactIndex);
+            console.log(`${typeStr} record deleted!.`)
+            toast.info("Delete successful!", {
+                description: `${typeStr} record deleted.`,
+            })
+        } else {
+            console.log(`Delete Aborted! Continue working on the ${typeStr} record.`)
+            toast.info(`Delete -> Aborted!`, {
+                description: `Continue working on the ${typeStr} record.`,
+            })
+        }
+    }
 
     return (
         <>
@@ -24,9 +47,10 @@ const ContactDetails = (props) => {
                         arrayName={arrayName} 
                         person={person} 
                         updateContactForPerson={updateContactForPerson} 
-                        removeContactForPerson={removeContactForPerson} 
+                        deleteContactForPerson={deleteContactForPerson} 
                         addContactForPerson={addContactForPerson} 
                         formErrors={formErrors}
+                        setFormErrors={setFormErrors}
                     />  
                     
                     <EmailDetails 
@@ -35,9 +59,10 @@ const ContactDetails = (props) => {
                         arrayName={arrayName} 
                         person={person} 
                         updateContactForPerson={updateContactForPerson} 
-                        removeContactForPerson={removeContactForPerson} 
+                        deleteContactForPerson={deleteContactForPerson} 
                         addContactForPerson={addContactForPerson} 
                         formErrors={formErrors}
+                        setFormErrors={setFormErrors}
                     />    
  
                     <PhoneDetails 
@@ -46,10 +71,18 @@ const ContactDetails = (props) => {
                         arrayName={arrayName} 
                         person={person} 
                         updateContactForPerson={updateContactForPerson} 
-                        removeContactForPerson={removeContactForPerson} 
+                        deleteContactForPerson={deleteContactForPerson} 
                         addContactForPerson={addContactForPerson} 
                         formErrors={formErrors}
-                    />    
+                        setFormErrors={setFormErrors}
+                    />
+
+                    <ConfirmationModal
+                        show={show}
+                        message={confirmMsg}
+                        onConfirm={handleConfirm}
+                        onCancel={handleCancel}
+                    />
                 </div>
             </div>
         </>
@@ -64,113 +97,8 @@ ContactDetails.propTypes = {
     updateContactForPerson: PropTypes.func.isRequired,
     removeContactForPerson: PropTypes.func.isRequired,
     addContactForPerson: PropTypes.func.isRequired,
-    formErrors: PropTypes.shape({
-        maritalStatus: PropTypes.string,
-        applicationStatus: PropTypes.string,
-        person: PropTypes.shape({
-            firstName: PropTypes.string,
-            middleName: PropTypes.string,
-            lastName: PropTypes.string,
-            dob: PropTypes.string,
-            lifeStatus: PropTypes.string,
-            contact: PropTypes.shape({
-                addresses: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        street: PropTypes.string,
-                        city: PropTypes.string,
-                        state: PropTypes.string,
-                        zipcode: PropTypes.string,
-                        country: PropTypes.string,
-                    })
-                ),
-                emails: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        emailType: PropTypes.string,
-                        address: PropTypes.string,
-                    })
-                ),
-                phones: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        phoneType: PropTypes.string,
-                        countryCode: PropTypes.string,
-                        number: PropTypes.string,
-                    })
-                ),
-            }),
-        }),
-        spouses: PropTypes.arrayOf(
-            PropTypes.shape({
-                maritalStatus: PropTypes.string,
-                person: PropTypes.shape({
-                    firstName: PropTypes.string,
-                    middleName: PropTypes.string,
-                    lastName: PropTypes.string,
-                    dob: PropTypes.string,
-                    lifeStatus: PropTypes.string,
-                    contact: PropTypes.shape({
-                        addresses: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                street: PropTypes.string,
-                                city: PropTypes.string,
-                                state: PropTypes.string,
-                                zipcode: PropTypes.string,
-                                country: PropTypes.string,
-                            })
-                        ),
-                        emails: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                emailType: PropTypes.string,
-                                address: PropTypes.string,
-                            })
-                        ),
-                        phones: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                phoneType: PropTypes.string,
-                                countryCode: PropTypes.string,
-                                number: PropTypes.string,
-                            })
-                        ),
-                    }),
-                }),
-            })
-        ),
-        children: PropTypes.arrayOf(
-            PropTypes.shape({
-                childType: PropTypes.string,
-                person: PropTypes.shape({
-                    firstName: PropTypes.string,
-                    middleName: PropTypes.string,
-                    lastName: PropTypes.string,
-                    dob: PropTypes.string,
-                    lifeStatus: PropTypes.string,
-                    contact: PropTypes.shape({
-                        addresses: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                street: PropTypes.string,
-                                city: PropTypes.string,
-                                state: PropTypes.string,
-                                zipcode: PropTypes.string,
-                                country: PropTypes.string,
-                            })
-                        ),
-                        emails: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                emailType: PropTypes.string,
-                                address: PropTypes.string,
-                            })
-                        ),
-                        phones: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                phoneType: PropTypes.string,
-                                countryCode: PropTypes.string,
-                                number: PropTypes.string,
-                            })
-                        ),
-                    }),
-                }),
-            })
-        ),
-    }),
+    formErrors: PropTypes.object,
+    setFormErrors: PropTypes.func,
 }
 
 export default ContactDetails

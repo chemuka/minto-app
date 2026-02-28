@@ -1,10 +1,11 @@
 import { Trash } from 'react-bootstrap-icons';
 import PropTypes from 'prop-types';
 import ContactDetails from './ContactDetails';
+import { validators } from '../../validate/validators';
 
 const PersonForm = (props) => {
     const { entry, arrayName, index, title, removePersonFromArray, updatePersonInArray, addContactForPerson, 
-        updateContactForPerson, removeContactForPerson, formErrors } = props;
+        updateContactForPerson, removeContactForPerson, formErrors, setFormErrors } = props;
     let person = {};
     let extraFields = {};
     
@@ -43,7 +44,83 @@ const PersonForm = (props) => {
         person = entry.person;
     }
 
-    console.log('Person Form size: ', formErrors[arrayName].length)
+    const handleValidate = (arrayName, index, field, value) => {
+        let errorValue = ''
+        if (field === 'firstName') { errorValue = validators.name(value) }
+        if (field === 'middleName') { errorValue = validators.optionalString(2)(value) }
+        if (field === 'lastName') { errorValue = validators.name(value) }
+        if (field === 'dob') { errorValue = validators.required(value) || validators.dob(value) }
+        if (field === 'lifeStatus') { errorValue = validators.required(value) }
+        if (field === 'maritalStatus') { errorValue = validators.required(value) }
+        if (field === 'childType') { errorValue = validators.required(value) }
+        if (field === 'parentType') { errorValue = validators.required(value) }
+        if (field === 'siblingType') { errorValue = validators.required(value) }
+        if (field === 'familyRelationship') { errorValue = validators.required(value) }
+        if (field === 'relationship') { errorValue = validators.name(value) }
+        if (field === 'membershipNumber') { errorValue = validators.membershipNumber(value) }
+        if (field === 'percentage') { errorValue = validators.percentage(value) }
+        
+        setFormErrors(prev => ({
+            ...prev,
+            [arrayName]: prev[arrayName].map((entry, i) => {
+                if (i === index) {
+                    switch (arrayName) {
+                        case 'parents':
+                            if (field === 'parentType') {
+                                return { ...entry, parentType: errorValue }
+                            }
+                            return { ...entry, person: { ...entry.person, [field]: errorValue } }
+                        
+                        case 'children':
+                            if (field === 'childType') {
+                                return { ...entry, childType: errorValue }
+                            }
+                            return { ...entry, person: { ...entry.person, [field]: errorValue } }
+                        
+                        case 'referees':
+                            if (field === 'membershipNumber') {
+                                return { ...entry, membershipNumber: errorValue }
+                            }
+                            return { ...entry, person: { ...entry.person, [field]: errorValue } }
+                        
+                        case 'siblings':
+                            if (field === 'siblingType') {
+                                return { ...entry, siblingType: errorValue }
+                            }
+                            return { ...entry, person: { ...entry.person, [field]: errorValue } }
+                        
+                        case 'spouses':
+                            if (field === 'maritalStatus') {
+                                return { ...entry, maritalStatus: errorValue }
+                            }
+                            return { ...entry, person: { ...entry.person, [field]: errorValue } }
+                        
+                        case 'relatives':
+                            if (field === 'membershipNumber') {
+                                return { ...entry, membershipNumber: errorValue }
+                            }
+                            if (field === 'familyRelationship') {
+                                return { ...entry, familyRelationship: errorValue }
+                            }
+                            return { ...entry, person: { ...entry.person, [field]: errorValue } }
+                        
+                        case 'beneficiaries':
+                            if (field === 'percentage') {
+                                return { ...entry, percentage: errorValue }
+                            }
+                            if (field === 'relationship') {
+                                return { ...entry, relationship: errorValue }
+                            }
+                            return { ...entry, person: { ...entry.person, [field]: errorValue } }
+                        
+                        default:
+                            return entry
+                    }
+                }
+                return entry
+            })
+        }))
+    }
 
     return (
         <>
@@ -69,6 +146,7 @@ const PersonForm = (props) => {
                                     className="form-control"
                                     placeholder="First Name"
                                     value={person.firstName || ''}
+                                    onBlur={(e) => handleValidate(arrayName, index, 'firstName', e.target.value)}
                                     onChange={(e) => updatePersonInArray(arrayName, index, 'firstName', e.target.value)}
                                 />
                                 <label htmlFor={`${arrayName}-${index}-firstName`}>First Name*</label>
@@ -83,6 +161,7 @@ const PersonForm = (props) => {
                                     className="form-control"
                                     placeholder="Middle Name"
                                     value={person.middleName || ''}
+                                    onBlur={(e) => handleValidate(arrayName, index, 'middleName', e.target.value)}
                                     onChange={(e) => updatePersonInArray(arrayName, index, 'middleName', e.target.value)}
                                 />
                                 <label htmlFor={`${arrayName}-${index}-middleName`}>Middle Name</label>
@@ -99,6 +178,7 @@ const PersonForm = (props) => {
                                     className="form-control"
                                     placeholder="Last Name"
                                     value={person.lastName || ''}
+                                    onBlur={(e) => handleValidate(arrayName, index, 'lastName', e.target.value)}
                                     onChange={(e) => updatePersonInArray(arrayName, index, 'lastName', e.target.value)}
                                 />
                                 <label htmlFor={`${arrayName}-${index}-lastName`}>Last Name*</label>
@@ -112,6 +192,7 @@ const PersonForm = (props) => {
                                     type={"date"}
                                     className="form-control"
                                     value={person.dob || ''}
+                                    onBlur={(e) => handleValidate(arrayName, index, 'dob', e.target.value)}
                                     onChange={(e) => updatePersonInArray(arrayName, index, 'dob', e.target.value)}
                                 />
                                 <label htmlFor={`${arrayName}-${index}-dob`}>Date Of Birth</label>
@@ -126,6 +207,7 @@ const PersonForm = (props) => {
                                     id={`${arrayName}-${index}-lifeStatus`}
                                     className="form-select" 
                                     value={person.lifeStatus || ''}
+                                    onBlur={(e) => handleValidate(arrayName, index, 'lifeStatus', e.target.value)}
                                     onChange={(e) => updatePersonInArray(arrayName, index, 'lifeStatus', e.target.value)}
                                 >
                                     <option value="">-- Select --</option>
@@ -143,6 +225,7 @@ const PersonForm = (props) => {
                                     <select
                                         id={`${arrayName}-${index}-maritalStatus`}
                                         value={extraFields.maritalStatus || ''}
+                                        onBlur={(e) => handleValidate(arrayName, index, 'maritalStatus', e.target.value)}
                                         onChange={(e) => updatePersonInArray(arrayName, index, 'maritalStatus', e.target.value)}
                                         className="form-select"
                                     >
@@ -166,6 +249,7 @@ const PersonForm = (props) => {
                                     <select
                                         id={`${arrayName}-${index}-childType`}
                                         value={extraFields.childType || ''}
+                                    onBlur={(e) => handleValidate(arrayName, index, 'childType', e.target.value)}
                                         onChange={(e) => updatePersonInArray(arrayName, index, 'childType', e.target.value)}
                                         className="form-select"
                                     >
@@ -187,6 +271,7 @@ const PersonForm = (props) => {
                                     <select
                                         id={`${arrayName}-${index}-parentType`}
                                         value={extraFields.parentType || ''}
+                                        onBlur={(e) => handleValidate(arrayName, index, 'parentType', e.target.value)}
                                         onChange={(e) => updatePersonInArray(arrayName, index, 'parentType', e.target.value)}
                                         className="form-select"
                                     >
@@ -213,6 +298,7 @@ const PersonForm = (props) => {
                                     <select
                                         id={`${arrayName}-${index}-siblingType`}
                                         value={extraFields.siblingType || ''}
+                                        onBlur={(e) => handleValidate(arrayName, index, 'siblingType', e.target.value)}
                                         onChange={(e) => updatePersonInArray(arrayName, index, 'siblingType', e.target.value)}
                                         className="form-select"
                                     >
@@ -241,6 +327,7 @@ const PersonForm = (props) => {
                                             className="form-control"
                                             placeholder="Membership Number"
                                             value={extraFields.membershipNumber || ''}
+                                            onBlur={(e) => handleValidate(arrayName, index, 'membershipNumber', e.target.value)}
                                             onChange={(e) => updatePersonInArray(arrayName, index, 'membershipNumber', e.target.value)}
                                         />
                                         <label htmlFor={`${arrayName}-${index}-membershipNumber`}>Membership Number*</label>
@@ -262,17 +349,25 @@ const PersonForm = (props) => {
                                             className="form-control"
                                             placeholder="Membership Number"
                                             value={extraFields.membershipNumber || ''}
+                                            onBlur={(e) => handleValidate(arrayName, index, 'membershipNumber', e.target.value)}
                                             onChange={(e) => updatePersonInArray(arrayName, index, 'membershipNumber', e.target.value)}
                                         />
                                         <label htmlFor={`${arrayName}-${index}-membershipNumber`}>Membership Number*</label>
                                     </div>
-                                    { formErrors[arrayName].length > 0 && formErrors[arrayName][index].membershipNumber && <div className="text-danger mt-1">{ formErrors[arrayName][index].membershipNumber}</div>}
+                                    { 
+                                        formErrors[arrayName].length > 0 && 
+                                        formErrors[arrayName][index].membershipNumber && 
+                                        <div className="text-danger mt-1">
+                                            { formErrors[arrayName][index].membershipNumber}
+                                        </div>
+                                    }
                                 </div>
                                 <div className="col-sm-6 mb-3">
                                     <div className="form-floating">
                                         <select
                                             id={`familyRelationship-${index}`}
                                             value={extraFields.familyRelationship || ''}
+                                            onBlur={(e) => handleValidate(arrayName, index, 'familyRelationship', e.target.value)}
                                             onChange={(e) => updatePersonInArray(arrayName, index, 'familyRelationship', e.target.value)}
                                             className="form-select"
                                         >
@@ -302,7 +397,13 @@ const PersonForm = (props) => {
                                         </select>
                                         <label htmlFor={`familyRelationship-${index}`}>Family Relationship</label>
                                     </div>
-                                    { formErrors[arrayName].length > 0 && formErrors[arrayName][index].familyRelationship && <div className="text-danger mt-1">{ formErrors[arrayName][index].familyRelationship}</div>}
+                                    { 
+                                        formErrors[arrayName].length > 0 && 
+                                        formErrors[arrayName][index].familyRelationship && 
+                                        <div className="text-danger mt-1">
+                                            { formErrors[arrayName][index].familyRelationship}
+                                        </div>
+                                    }
                                 </div>
                             </>
                         )}
@@ -317,6 +418,7 @@ const PersonForm = (props) => {
                                             className="form-control"
                                             placeholder="Relationship"
                                             value={extraFields.relationship || ''}
+                                            onBlur={(e) => handleValidate(arrayName, index, 'relationship', e.target.value)}
                                             onChange={(e) => updatePersonInArray(arrayName, index, 'relationship', e.target.value)}
                                         />
                                         <label htmlFor={`${arrayName}-${index}-relationship`}>Relationship*</label>
@@ -332,6 +434,7 @@ const PersonForm = (props) => {
                                             min="0"
                                             max="100"
                                             value={extraFields.percentage || ''}
+                                            onBlur={(e) => handleValidate(arrayName, index, 'percentage', e.target.value)}
                                             onChange={(e) => updatePersonInArray(arrayName, index, 'percentage', parseFloat(e.target.value) || 0.0)}
                                             className="form-control"
                                         />
@@ -353,6 +456,7 @@ const PersonForm = (props) => {
                         removeContactForPerson={removeContactForPerson} 
                         addContactForPerson={addContactForPerson} 
                         formErrors={formErrors}
+                        setFormErrors={setFormErrors}
                     />  
                 </div>
             </div>
@@ -370,113 +474,8 @@ PersonForm.propTypes = {
     addContactForPerson: PropTypes.func,
     updateContactForPerson: PropTypes.func,
     removeContactForPerson: PropTypes.func,
-    formErrors: PropTypes.shape({
-        maritalStatus: PropTypes.string,
-        applicationStatus: PropTypes.string,
-        person: PropTypes.shape({
-            firstName: PropTypes.string,
-            middleName: PropTypes.string,
-            lastName: PropTypes.string,
-            dob: PropTypes.string,
-            lifeStatus: PropTypes.string,
-            contact: PropTypes.shape({
-                addresses: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        street: PropTypes.string,
-                        city: PropTypes.string,
-                        state: PropTypes.string,
-                        zipcode: PropTypes.string,
-                        country: PropTypes.string,
-                    })
-                ),
-                emails: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        emailType: PropTypes.string,
-                        address: PropTypes.string,
-                    })
-                ),
-                phones: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        phoneType: PropTypes.string,
-                        countryCode: PropTypes.string,
-                        number: PropTypes.string,
-                    })
-                ),
-            }),
-        }),
-        spouses: PropTypes.arrayOf(
-            PropTypes.shape({
-                maritalStatus: PropTypes.string,
-                person: PropTypes.shape({
-                    firstName: PropTypes.string,
-                    middleName: PropTypes.string,
-                    lastName: PropTypes.string,
-                    dob: PropTypes.string,
-                    lifeStatus: PropTypes.string,
-                    contact: PropTypes.shape({
-                        addresses: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                street: PropTypes.string,
-                                city: PropTypes.string,
-                                state: PropTypes.string,
-                                zipcode: PropTypes.string,
-                                country: PropTypes.string,
-                            })
-                        ),
-                        emails: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                emailType: PropTypes.string,
-                                address: PropTypes.string,
-                            })
-                        ),
-                        phones: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                phoneType: PropTypes.string,
-                                countryCode: PropTypes.string,
-                                number: PropTypes.string,
-                            })
-                        ),
-                    }),
-                }),
-            })
-        ),
-        children: PropTypes.arrayOf(
-            PropTypes.shape({
-                childType: PropTypes.string,
-                person: PropTypes.shape({
-                    firstName: PropTypes.string,
-                    middleName: PropTypes.string,
-                    lastName: PropTypes.string,
-                    dob: PropTypes.string,
-                    lifeStatus: PropTypes.string,
-                    contact: PropTypes.shape({
-                        addresses: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                street: PropTypes.string,
-                                city: PropTypes.string,
-                                state: PropTypes.string,
-                                zipcode: PropTypes.string,
-                                country: PropTypes.string,
-                            })
-                        ),
-                        emails: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                emailType: PropTypes.string,
-                                address: PropTypes.string,
-                            })
-                        ),
-                        phones: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                phoneType: PropTypes.string,
-                                countryCode: PropTypes.string,
-                                number: PropTypes.string,
-                            })
-                        ),
-                    }),
-                }),
-            })
-        ),
-    }),
+    formErrors: PropTypes.object,
+    setFormErrors: PropTypes.func,
 }
 
 export default PersonForm

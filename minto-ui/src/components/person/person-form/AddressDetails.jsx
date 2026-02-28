@@ -1,10 +1,43 @@
 import { GeoAlt, Plus, Trash } from 'react-bootstrap-icons';
 import PropTypes from 'prop-types';
 import countriesData from '../../../assets/data/countries.json';
+import { validators } from '../../validate/validators';
 
 const AddressDetails = (props) => {
-    const { index, title, arrayName, person, updateContactForPerson, removeContactForPerson, addContactForPerson, 
-        formErrors } = props;
+    const { index, title, arrayName, person, updateContactForPerson, deleteContactForPerson, addContactForPerson, 
+        formErrors, setFormErrors } = props;
+    
+    const handleValidate = (arrayName, personIndex, contactIndex, field, value) => {
+        let contactType = 'addresses'
+        let errorValue = ''
+        if (field === 'addressType') { errorValue = validators.required(value) }
+        if (field === 'street') { errorValue = validators.street(value) }
+        if (field === 'city') { errorValue = validators.required(value) }
+        if (field === 'state') { errorValue = validators.optionalString(2)(value) }
+        if (field === 'zipcode') { errorValue = validators.optionalString(3)(value) }
+        if (field === 'country') { errorValue = validators.required(value) }
+        
+        setFormErrors(prev => ({
+            ...prev,
+            [arrayName]: prev[arrayName].map((entry, i) => {
+                if (i === personIndex) {
+                    let personObj = entry.person;
+                    return {
+                        ...entry,
+                        person: {
+                            ...personObj,
+                            contact: {
+                                ...personObj.contact,
+                                [contactType]: personObj.contact[contactType].map((contact, j) =>
+                                    j === contactIndex ? { ...contact, [field]: errorValue } : contact
+                                )
+                            }
+                        }
+                    }
+                }
+            })
+        }))
+    }
 
     return (
         <>
@@ -33,7 +66,7 @@ const AddressDetails = (props) => {
                             {person.contact.addresses.length >= 1 && (
                             <button
                                 type="button"
-                                onClick={() => removeContactForPerson(arrayName, index, 'addresses', addrIndex)}
+                                onClick={() => deleteContactForPerson(arrayName, index, 'addresses', addrIndex)}
                                 className="bg-light text-danger p-2"
                                 title={`Remove Address ${addrIndex + 1} for ${title} ${index + 1}`}
                             >
@@ -48,6 +81,7 @@ const AddressDetails = (props) => {
                                     <select
                                         id={`${arrayName}-${index}-address-type`}
                                         value={address.addressType || ''}
+                                        onBlur={(e) => handleValidate(arrayName, index, addrIndex, 'addressType', e.target.value)}
                                         onChange={(e) => updateContactForPerson(arrayName, index, 'addresses', addrIndex, 'addressType', e.target.value)}
                                         className="form-select"
                                     >
@@ -59,7 +93,7 @@ const AddressDetails = (props) => {
                                         <option value="Shipping">Shipping</option>
                                         <option value="Other">Other</option>
                                     </select>
-                                    <label htmlFor={`${arrayName}-${index}-address-type`}>Type</label>
+                                    <label htmlFor={`${arrayName}-${index}-address-type`}>Type*</label>
                                 </div>
                                 { 
                                     formErrors[arrayName].length > 0 &&
@@ -77,10 +111,11 @@ const AddressDetails = (props) => {
                                         type={"text"}
                                         placeholder="Street Address"
                                         value={address.street || ''}
+                                        onBlur={(e) => handleValidate(arrayName, index, addrIndex, 'street', e.target.value)}
                                         onChange={(e) => updateContactForPerson(arrayName, index, 'addresses', addrIndex, 'street', e.target.value)}
                                         className="form-control"
                                     />
-                                    <label htmlFor={`${arrayName}-${index}-street`}>Street Address</label>
+                                    <label htmlFor={`${arrayName}-${index}-street`}>Street Address*</label>
                                 </div>
                                 { 
                                     formErrors[arrayName].length > 0 &&
@@ -100,10 +135,11 @@ const AddressDetails = (props) => {
                                         type={"text"}
                                         placeholder="City"
                                         value={address.city || ''}
+                                        onBlur={(e) => handleValidate(arrayName, index, addrIndex, 'city', e.target.value)}
                                         onChange={(e) => updateContactForPerson(arrayName, index, 'addresses', addrIndex, 'city', e.target.value)}
                                         className="form-control"
                                     />
-                                    <label htmlFor={`${arrayName}-${index}-city`}>City</label>
+                                    <label htmlFor={`${arrayName}-${index}-city`}>City*</label>
                                 </div>
                                 { 
                                     formErrors[arrayName].length > 0 &&
@@ -121,6 +157,7 @@ const AddressDetails = (props) => {
                                         type={"text"}
                                         placeholder="State"
                                         value={address.state || ''}
+                                        onBlur={(e) => handleValidate(arrayName, index, addrIndex, 'state', e.target.value)}
                                         onChange={(e) => updateContactForPerson(arrayName, index, 'addresses', addrIndex, 'state', e.target.value)}
                                         className="form-control"
                                     />
@@ -144,6 +181,7 @@ const AddressDetails = (props) => {
                                         type={"text"}
                                         placeholder="ZIP Code"
                                         value={address.zipcode || ''}
+                                        onBlur={(e) => handleValidate(arrayName, index, addrIndex, 'zipcode', e.target.value)}
                                         onChange={(e) => updateContactForPerson(arrayName, index, 'addresses', addrIndex, 'zipcode', e.target.value)}
                                         className="form-control"
                                     />
@@ -165,6 +203,7 @@ const AddressDetails = (props) => {
                                         name={`${arrayName}-${index}-country`}
                                         className="form-select"
                                         value={address.country || ''}
+                                        onBlur={(e) => handleValidate(arrayName, index, addrIndex, 'country', e.target.value)}
                                         onChange={(e) => updateContactForPerson(arrayName, index, 'addresses', addrIndex, 'country', e.target.value)}
                                     >
                                         <option key={'nil'} value="">-- Select --</option>
@@ -174,7 +213,7 @@ const AddressDetails = (props) => {
                                             </option>
                                         ))}
                                     </select>
-                                    <label htmlFor={`${arrayName}-${index}-country`}>Country</label>
+                                    <label htmlFor={`${arrayName}-${index}-country`}>Country*</label>
                                 </div>
                                 { 
                                     formErrors[arrayName].length > 0 &&
@@ -199,115 +238,10 @@ AddressDetails.propTypes = {
     arrayName: PropTypes.string.isRequired,
     person: PropTypes.object.isRequired,
     updateContactForPerson: PropTypes.func.isRequired,
-    removeContactForPerson: PropTypes.func.isRequired,
+    deleteContactForPerson: PropTypes.func.isRequired,
     addContactForPerson: PropTypes.func.isRequired,
-    formErrors: PropTypes.shape({
-        maritalStatus: PropTypes.string,
-        applicationStatus: PropTypes.string,
-        person: PropTypes.shape({
-            firstName: PropTypes.string,
-            middleName: PropTypes.string,
-            lastName: PropTypes.string,
-            dob: PropTypes.string,
-            lifeStatus: PropTypes.string,
-            contact: PropTypes.shape({
-                addresses: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        street: PropTypes.string,
-                        city: PropTypes.string,
-                        state: PropTypes.string,
-                        zipcode: PropTypes.string,
-                        country: PropTypes.string,
-                    })
-                ),
-                emails: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        emailType: PropTypes.string,
-                        address: PropTypes.string,
-                    })
-                ),
-                phones: PropTypes.arrayOf(
-                    PropTypes.shape({
-                        phoneType: PropTypes.string,
-                        countryCode: PropTypes.string,
-                        number: PropTypes.string,
-                    })
-                ),
-            }),
-        }),
-        spouses: PropTypes.arrayOf(
-            PropTypes.shape({
-                maritalStatus: PropTypes.string,
-                person: PropTypes.shape({
-                    firstName: PropTypes.string,
-                    middleName: PropTypes.string,
-                    lastName: PropTypes.string,
-                    dob: PropTypes.string,
-                    lifeStatus: PropTypes.string,
-                    contact: PropTypes.shape({
-                        addresses: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                street: PropTypes.string,
-                                city: PropTypes.string,
-                                state: PropTypes.string,
-                                zipcode: PropTypes.string,
-                                country: PropTypes.string,
-                            })
-                        ),
-                        emails: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                emailType: PropTypes.string,
-                                address: PropTypes.string,
-                            })
-                        ),
-                        phones: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                phoneType: PropTypes.string,
-                                countryCode: PropTypes.string,
-                                number: PropTypes.string,
-                            })
-                        ),
-                    }),
-                }),
-            })
-        ),
-        children: PropTypes.arrayOf(
-            PropTypes.shape({
-                childType: PropTypes.string,
-                person: PropTypes.shape({
-                    firstName: PropTypes.string,
-                    middleName: PropTypes.string,
-                    lastName: PropTypes.string,
-                    dob: PropTypes.string,
-                    lifeStatus: PropTypes.string,
-                    contact: PropTypes.shape({
-                        addresses: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                street: PropTypes.string,
-                                city: PropTypes.string,
-                                state: PropTypes.string,
-                                zipcode: PropTypes.string,
-                                country: PropTypes.string,
-                            })
-                        ),
-                        emails: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                emailType: PropTypes.string,
-                                address: PropTypes.string,
-                            })
-                        ),
-                        phones: PropTypes.arrayOf(
-                            PropTypes.shape({
-                                phoneType: PropTypes.string,
-                                countryCode: PropTypes.string,
-                                number: PropTypes.string,
-                            })
-                        ),
-                    }),
-                }),
-            })
-        ),
-    }),
+    formErrors: PropTypes.object,
+    setFormErrors: PropTypes.func,
 }
 
 export default AddressDetails

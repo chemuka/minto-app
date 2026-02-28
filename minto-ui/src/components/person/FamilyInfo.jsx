@@ -5,8 +5,7 @@ import SpousesForm from './SpousesForm';
 
 const FamilyInfo = (props) => {
     const { formData, addPersonToArray, renderPersonForm, formErrors } = props;
-
-    console.log('family: ', formErrors)
+    
     return (
         <>
             <div className='card'>

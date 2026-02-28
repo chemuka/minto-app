@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 const ClubRelativesForm = (props) => {
     const { formData, addPersonToArray, renderPersonForm, formErrors } = props;
-
+    
     return (
         <>
             <div className='card'>

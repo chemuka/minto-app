@@ -30,6 +30,7 @@ import BeneficiariesForm from '../../person/BeneficiariesForm';
 import PersonalInfoForm from '../../person/personal-info-form/PersonalInfoForm';
 import { defaultErrors } from '../../../model/defaultErrors';
 import { validators } from '../../validate/validators';
+import { personErrors } from '../../../model/personErrors';
 
 /**
  * Create draft membership application by users with regular user permissions.
@@ -61,36 +62,52 @@ const DraftApplication = (props) => {
     ]
 
     const addPersonToArray = (arrayName) => {
-        let newEntry
+        let newEntry, newErrors
         switch (arrayName) {
         case 'parents': 
             newEntry = { ...defaultParent } 
+            newErrors = { ...personErrors.parent() }
             break
         case 'spouses': 
             newEntry = { ...defaultSpouse } 
+            newErrors = { ...personErrors.spouse() }
             break
         case 'children': 
             newEntry = { ...defaultChild } 
+            newErrors = { ...personErrors.child() }
             break
         case 'siblings': 
             newEntry = { ...defaultSibling } 
+            newErrors = { ...personErrors.sibling() }
             break
         case 'referees': 
             newEntry =  { ...defaultReferee }
+            newErrors = { ...personErrors.referee() }
             break
         case 'relatives': 
             newEntry = { ...defaultRelative }
+            newErrors = { ...personErrors.relative() }
             break
         case 'beneficiaries': 
             newEntry = { ...defaultBeneficiary }
+            newErrors = { ...personErrors.beneficiary() }
             break
         default: 
             newEntry = { ...defaultPerson }
+            newErrors = { ...personErrors.person() }
         }
         
         setFormData(prev => ({
             ...prev,
             [arrayName]: [...prev[arrayName], newEntry]
+        }))
+
+        console.log('Adding: ', arrayName)
+        console.log('newErrors: ', newErrors)
+        
+        setFormErrors(prev =>({
+            ...prev,
+            [arrayName]: [...prev[arrayName], newErrors]
         }))
     }
 
@@ -254,6 +271,26 @@ const DraftApplication = (props) => {
                 return entry
             })
         }))
+
+        setFormErrors(prev => ({
+            ...prev,
+            [arrayName]: prev[arrayName].map((entry, i) => {
+                if (i === personIndex) {
+                    let personObj;
+                    personObj = entry.person
+                    return {
+                        ...entry,
+                        person: {
+                            ...personObj,
+                            contact: {
+                                ...personObj.contact,
+                                [contactType]: [...personObj.contact[contactType], newContact]
+                            }
+                        }
+                    }
+                }
+            })
+        }))
     }
 
     const removeContactForPerson = (arrayName, personIndex, contactType, contactIndex) => {
@@ -289,11 +326,36 @@ const DraftApplication = (props) => {
                 return entry
             })
         }))
+
+        setFormErrors(prev => ({
+            ...prev,
+            [arrayName]: prev[arrayName].map((entry, i) => {
+                if (i === personIndex) {
+                    let personObj
+                    personObj = entry.person
+                    return {
+                        ...entry,
+                        person: {
+                            ...personObj,
+                            contact: {
+                                ...personObj.contact,
+                                [contactType]: personObj.contact[contactType].filter((_, j) => j !== contactIndex)
+                            }
+                        }
+                    }
+                }
+            })
+        }))
     }
 
 
     const removePersonFromArray = (arrayName, index) => {
         setFormData(prev => ({
+            ...prev,
+            [arrayName]: prev[arrayName].filter((_, i) => i !== index)
+        }));
+
+        setFormErrors(prev => ({
             ...prev,
             [arrayName]: prev[arrayName].filter((_, i) => i !== index)
         }));
@@ -311,8 +373,19 @@ const DraftApplication = (props) => {
             person: {
                 ...prev.person,
                 contact: {
-                ...prev.person.contact,
-                [contactType]: [...prev.person.contact[contactType], newContact]
+                    ...prev.person.contact,
+                    [contactType]: [...prev.person.contact[contactType], newContact]
+                }
+            }
+        }));
+
+        setFormErrors(prev => ({
+            ...prev,
+            person: {
+                ...prev.person,
+                contact: {
+                    ...prev.person.contact,
+                    [contactType]: [...prev.person.contact[contactType], newContact]
                 }
             }
         }));
@@ -324,8 +397,19 @@ const DraftApplication = (props) => {
             person: {
                 ...prev.person,
                 contact: {
-                ...prev.person.contact,
-                [type]: prev.person.contact[type].filter((_, i) => i !== index)
+                    ...prev.person.contact,
+                    [type]: prev.person.contact[type].filter((_, i) => i !== index)
+                }
+            }
+        }));
+
+        setFormErrors(prev => ({ 
+            ...prev,
+            person: { 
+                ...prev.person,
+                contact: { 
+                    ...prev.person.contact,
+                    [type]: prev.person.contact[type].filter((_, i) => i !== index)
                 }
             }
         }));
@@ -353,7 +437,7 @@ const DraftApplication = (props) => {
                     )
                 }
             }
-        }))
+        }));
     }
 
     const updateMainPerson = (field, value) => {
@@ -806,6 +890,7 @@ const DraftApplication = (props) => {
                 updateContactForPerson={updateContactForPerson}
                 removeContactForPerson={removeContactForPerson}
                 formErrors={formErrors}
+                setFormErrors={setFormErrors}
             />
         )
     }
